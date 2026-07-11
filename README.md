@@ -5,9 +5,9 @@ sites (`/whs/site/{id}`) and danger-listing events (`/whs/danger/{id}-{n}`),
 as described in the paper *Building an Interoperable Knowledge Graph of the
 UNESCO World Heritage Sites*.
 
-Data and pipeline: https://github.com/YOURUSER/whs-kg
+Data and pipeline: https://github.com/marianamalta/whs
 
 ## Maintainers
 
 - Mariana Curado Malta, INESC TEC / Universidade do Porto
-  (mariana.c.malta@inesctec.pt, GitHub: @YOURUSER)
+  (mariana.c.malta@inesctec.pt, GitHub: @marianamalta)
