@@ -14,8 +14,18 @@ for what is editorial; the pipeline **flags gaps instead of guessing**.
 | 1. Extract | `extract.py` | `data/raw/whc-sites-<date>.csv` (dated snapshot) |
 | 2. Clean (paper 4.1) | `clean.py` | `data/clean/sites.json` |
 | 3. Reconcile | `reconcile.py` | `authority/*.csv` + `authority/review_needed.txt` |
+| 3b. Curate (optional) | `curate.py` | `authority/curation_todo.txt`, `authority/danger_types_todo.csv` |
 | 4. Build & validate | `build_graph.py` | `out/whs.ttl`, `out/whs.nt`, `out/stats.txt`, SHACL report |
 | 5. Diff (optional) | `diff.py` | `out/changelog-<date>.txt`, `out/delta-<date>.ru` (SPARQL UPDATE patch) |
+
+`curate.py` is a helper for the editorial work, not a build step: it reads the
+cleaned data plus the authority files and lists everything that still blocks a
+fully conformant graph — danger-listed sites without a type, ISO codes without a
+Getty TGN id, and region strings missing from `regions.csv`. It also writes
+`danger_types_todo.csv`, a fill-in sheet pre-populated with every danger-listed
+site (complete the `label` column, then replace `danger_types.csv` with it).
+The graph builds without it; run it after each `reconcile.py` to see what needs
+hand-curation before the next `build_graph.py`.
 
 ## Authority files (in `authority/`)
 
@@ -47,6 +57,7 @@ for what is editorial; the pipeline **flags gaps instead of guessing**.
     python extract.py       # downloads the syndication export
     python clean.py         # applies the ten cleaning operations of 4.1
     python reconcile.py     # refreshes authority files, reports gaps
+    python curate.py        # optional: checklist of authority gaps to hand-fill
     python build_graph.py   # writes Turtle/N-Triples, validates, prints stats
     python diff.py          # optional: changelog + SPARQL UPDATE delta vs previous run
 
