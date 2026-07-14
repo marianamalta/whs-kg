@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use this software or the data it produces, please cite both the software and the accompanying paper."
+title: "WHS Knowledge Graph Pipeline"
+abstract: >-
+  A reproducible pipeline that turns the official UNESCO World Heritage
+  syndication export into a five-star, FAIR-oriented RDF knowledge graph:
+  extraction, cleaning, reconciliation (Wikidata, Getty TGN, UNESCO Thesaurus),
+  MAP-driven RDF generation, and SHACL validation.
+type: software
+authors:
+  - given-names: "Alexandre H. S."
+    family-names: "Santos"
+    affiliation: "Faculdade de Engenharia, Universidade do Porto"
+  - given-names: "Pedro T. L. B."
+    family-names: "Plácido"
+    affiliation: "Faculdade de Engenharia, Universidade do Porto"
+  - given-names: "Mariana"
+    family-names: "Curado Malta"
+    email: "mariana.c.malta@inesctec.pt"
+    affiliation: "INESC TEC, Faculdade de Engenharia, Universidade do Porto"
+    orcid: "https://orcid.org/0000-0002-3512-931X"
+repository-code: "https://github.com/marianamalta/whs-kg"
+url: "https://w3id.org/whs/"
+license:
+  - MIT
+  - CC-BY-4.0
+keywords:
+  - "UNESCO World Heritage"
+  - "knowledge graph"
+  - "linked open data"
+  - "RDF"
+  - "SHACL"
+  - "metadata application profile"
+  - "FAIR"
+preferred-citation:
+  type: article
+  title: "Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites"
+  authors:
+    - given-names: "Alexandre H. S."
+      family-names: "Santos"
+    - given-names: "Pedro T. L. B."
+      family-names: "Plácido"
+    - given-names: "Mariana"
+      family-names: "Curado Malta"
+      orcid: "https://orcid.org/0000-0002-3512-931X"
+  journal: "Journal on Computing and Cultural Heritage"
+  year: 2026
+  notes: "Forthcoming; update volume, issue, pages, and DOI on publication."
