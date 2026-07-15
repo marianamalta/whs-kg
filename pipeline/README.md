@@ -67,13 +67,23 @@ so run it from this folder after `build_graph.py` has produced `out/whs.ttl`.
     python reconcile.py     # refreshes authority files, reports gaps
     python curate.py        # optional: checklist of authority gaps to hand-fill
     python build_graph.py   # writes Turtle/N-Triples, validates, prints stats
+    python build_graph.py --incremental  # patch existing out/whs.ttl instead of full rebuild
     python ablate_cleaning.py  # optional: SHACL violations, cleaning on vs. off (Table 6)
     python diff.py          # optional: changelog + SPARQL UPDATE delta vs previous run
 
-`diff.py` compares the two most recent cleaned snapshots. The full rebuild
-remains the canonical dump; the delta file lets a triple store hosting the
-graph be updated in place, and the changelog documents exactly what each
-World Heritage Committee session changed.
+`diff.py` compares the two most recent cleaned snapshots. For each site it
+reports whether it was **added** (`+`, a new site), **removed** (`-`), or
+**changed** (`~`), listing each changed field with its old and new value. The
+full rebuild remains the canonical dump; the delta file lets a triple store
+hosting the graph be updated in place, and the changelog documents exactly what
+each World Heritage Committee session changed.
+
+`build_graph.py --incremental` avoids rebuilding the whole graph: it loads the
+existing `out/whs.ttl`, then (using the two latest snapshots) removes the
+triples of removed/changed sites and re-emits only the added/changed ones. It
+assumes `out/whs.ttl` reflects the previous snapshot, and falls back to a full
+rebuild if there is no existing graph or fewer than two snapshots. Statistics
+and SHACL validation run on the resulting graph either way.
 
 `build_graph.py` prints the statistics block used in the paper's Results
 section (triple count, site/danger-event counts, TGN/Wikidata link counts) and

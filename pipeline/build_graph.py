@@ -4,6 +4,7 @@ Reads data/clean/sites.json + the authority files, emits out/whs.ttl and
 out/whs.nt, validates with pySHACL against whs-shapes.ttl, and prints the
 statistics block used in the paper's Results section.
 """
+import argparse
 import csv
 import json
 import sys
@@ -31,6 +32,7 @@ CRITERIA_QIDS = ["Q15911738", "Q23038976", "Q23038977", "Q23038978",
 
 AUTH = Path("authority")
 OUT = Path("out")
+CLEAN = Path("data/clean")
 
 
 def load_csv(name: str, key: str) -> dict:
@@ -148,27 +150,85 @@ def add_site(g: Graph, s: dict, auth: dict) -> dict:
     return {"tgn": n_tgn_links, "wd": n_wd_links, "events": n_events}
 
 
-def main() -> None:
-    sites = json.loads(Path("data/clean/sites.json").read_text("utf-8"))
+def remove_site(g: Graph, id_no) -> None:
+    """Delete a site and all of its danger events from an in-memory graph."""
+    g.remove((WHS_SITE[str(id_no)], None, None))
+    prefix = f"{WHS_DANGER}{id_no}-"
+    for ev in {s for s in g.subjects() if str(s).startswith(prefix)}:
+        g.remove((ev, None, None))
+
+
+def graph_stats(g: Graph) -> list[str]:
+    """Statistics read back from the finished graph, so the same numbers are
+    reported whether the graph was built from scratch or patched in place."""
+    country = list(g.triples((None, EDM.country, None)))
+    n_sites = len(set(g.subjects(RDF.type, CRM["E18_Physical_Thing"])))
+    n_events = len(set(g.subjects(RDF.type, CRM["E5_Event"])))
+    n_wd = sum(1 for _ in g.triples((None, SCHEMA.sameAs, None)))
+    return [
+        f"triples:              {len(g):,}",
+        f"site resources:       {n_sites:,}",
+        f"danger events:        {n_events}",
+        f"edm:country links:    {len(country)} (distinct TGN entries: "
+        f"{len({o for _, _, o in country})})",
+        f"wikidata sameAs:      {n_wd}",
+    ]
+
+
+def build_full() -> Graph:
+    """Rebuild the whole graph from the current cleaned snapshot."""
+    sites = json.loads((CLEAN / "sites.json").read_text("utf-8"))
     auth = load_authorities()
     g = new_graph()
-    n_tgn_links = n_wd_links = n_events = 0
     for s in sites:
-        c = add_site(g, s, auth)
-        n_tgn_links += c["tgn"]; n_wd_links += c["wd"]; n_events += c["events"]
+        add_site(g, s, auth)
+    return g
+
+
+def build_incremental() -> Graph | None:
+    """Patch the existing out/whs.ttl using the two most recent cleaned
+    snapshots, instead of rebuilding from scratch. Returns None (so the caller
+    falls back to a full build) when there is no existing graph or fewer than
+    two snapshots.
+
+    Assumes out/whs.ttl corresponds to the second-most-recent snapshot, i.e.
+    the state left by the previous pipeline run (extract -> clean -> build)."""
+    ttl = OUT / "whs.ttl"
+    snaps = sorted(CLEAN.glob("sites-*.json"))
+    if not ttl.exists() or len(snaps) < 2:
+        return None
+    old = {s["id_no"]: s for s in json.loads(snaps[-2].read_text("utf-8"))}
+    new = {s["id_no"]: s for s in json.loads(snaps[-1].read_text("utf-8"))}
+    added = set(new) - set(old)
+    removed = set(old) - set(new)
+    changed = {i for i in set(old) & set(new) if old[i] != new[i]}
+
+    g = new_graph()
+    g.parse(ttl, format="turtle")
+    for i in removed | changed:
+        remove_site(g, i)
+    auth = load_authorities()
+    for i in added | changed:
+        add_site(g, new[i], auth)
+    print(f"incremental: {snaps[-2].name} -> {snaps[-1].name}  "
+          f"(+{len(added)} added, -{len(removed)} removed, "
+          f"~{len(changed)} changed)")
+    return g
+
+
+def main(incremental: bool = False) -> None:
+    g = build_incremental() if incremental else None
+    if g is None:
+        if incremental:
+            print("incremental build not possible "
+                  "(no existing graph or <2 snapshots) - doing a full rebuild.")
+        g = build_full()
 
     OUT.mkdir(exist_ok=True)
     g.serialize(OUT / "whs.ttl", format="turtle")
     g.serialize(OUT / "whs.nt", format="nt", encoding="utf-8")
 
-    stats = [
-        f"triples:              {len(g):,}",
-        f"site resources:       {len(sites):,}",
-        f"danger events:        {n_events}",
-        f"edm:country links:    {n_tgn_links} (distinct TGN entries: "
-        f"{len({o for _, _, o in g.triples((None, EDM.country, None))})})",
-        f"wikidata sameAs:      {n_wd_links}",
-    ]
+    stats = graph_stats(g)
     print("\n".join(stats))
     (OUT / "stats.txt").write_text("\n".join(stats), encoding="utf-8")
 
@@ -191,4 +251,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser(
+        description="Build the WHS knowledge graph and validate it.")
+    ap.add_argument(
+        "--incremental", action="store_true",
+        help="patch the existing out/whs.ttl using the two latest cleaned "
+             "snapshots instead of rebuilding the whole graph from scratch")
+    main(incremental=ap.parse_args().incremental)

@@ -30,6 +30,13 @@ def changed_fields(a: dict, b: dict) -> list[str]:
     return [k for k in sorted(set(a) | set(b)) if a.get(k) != b.get(k)]
 
 
+def fmt(v, maxlen: int = 80) -> str:
+    """Compact one-line rendering of a field value for the changelog."""
+    s = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
+    s = " ".join(s.split())
+    return s if len(s) <= maxlen else s[:maxlen - 1] + "…"
+
+
 def delete_block(id_no: int) -> str:
     """SPARQL UPDATE deleting everything about a site and its danger events."""
     site = f"<{WHS_SITE}{id_no}>"
@@ -60,7 +67,10 @@ def main() -> None:
              f"changed: {len(changed)}", ""]
     lines += [f"+ {i}  {new[i]['names'].get('en', '?')}" for i in added]
     lines += [f"- {i}  {old[i]['names'].get('en', '?')}" for i in removed]
-    lines += [f"~ {i}  {', '.join(fields)}" for i, fields in changed.items()]
+    for i, fields in changed.items():
+        lines.append(f"~ {i}  {new[i]['names'].get('en', '?')}")
+        for k in fields:
+            lines.append(f"      {k}: {fmt(old[i].get(k))} -> {fmt(new[i].get(k))}")
     log = OUT / f"changelog-{stamp}.txt"
     log.write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(lines[:5]))
