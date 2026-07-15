@@ -1,0 +1,31 @@
+{
+  "title": "UNESCO World Heritage Knowledge Graph and Pipeline",
+  "description": "A five-star, FAIR-oriented RDF knowledge graph of the UNESCO World Heritage sites, derived from the official World Heritage Centre syndication export, together with the reproducible pipeline that builds it: extraction, cleaning, reconciliation to Wikidata, the Getty Thesaurus of Geographic Names and the UNESCO Thesaurus, MAP-driven RDF generation, and SHACL validation. Accompanies the paper 'Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites'.",
+  "upload_type": "dataset",
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "creators": [
+    {
+      "name": "Curado Malta, Mariana",
+      "affiliation": "INESC TEC, Faculdade de Engenharia, Universidade do Porto",
+      "orcid": "0000-0002-3512-931X"
+    },
+    {
+      "name": "Santos, Alexandre H. S.",
+      "affiliation": "Faculdade de Engenharia, Universidade do Porto"
+    },
+    {
+      "name": "Plácido, Pedro T. L. B.",
+      "affiliation": "Faculdade de Engenharia, Universidade do Porto"
+    }
+  ],
+  "keywords": [
+    "UNESCO World Heritage",
+    "knowledge graph",
+    "linked open data",
+    "RDF",
+    "SHACL",
+    "metadata application profile",
+    "FAIR"
+  ]
+}
