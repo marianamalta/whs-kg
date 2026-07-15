@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UNESCO World Heritage Knowledge Graph</title>
+  <link rel="alternate" type="text/turtle" href="whs.ttl">
+  <style>
+    body { max-width: 46rem; margin: 2rem auto; padding: 0 1rem;
+           font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+           line-height: 1.5; color: #1a1a1a; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.2rem; }
+    .sub { color: #666; margin-top: 0; }
+    code { background: #f2f2f2; padding: 0.1rem 0.3rem; border-radius: 3px; }
+    a { color: #0b5cad; }
+    .files a { display: inline-block; margin-right: 1rem; }
+    footer { margin-top: 2.5rem; font-size: 0.85rem; color: #666;
+             border-top: 1px solid #e5e5e5; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>UNESCO World Heritage Knowledge Graph</h1>
+  <p class="sub">A five-star, FAIR-oriented RDF knowledge graph of the UNESCO
+     World Heritage sites, derived from the official World Heritage Centre
+     syndication export.</p>
+
+  <p>Persistent namespace: <code>https://w3id.org/whs/</code>. Each site is
+     identified as <code>https://w3id.org/whs/site/{id_no}</code> (e.g.,
+     <code>site/755</code>) and each danger-listing event as
+     <code>https://w3id.org/whs/danger/{id_no}-{n}</code>. States and regions
+     are referenced by their Getty TGN and UNESCO Thesaurus URIs.</p>
+
+  <h2>Download the graph</h2>
+  <p class="files">
+    <a href="whs.ttl" type="text/turtle">whs.ttl</a> (Turtle)
+    <a href="whs.nt" type="application/n-triples">whs.nt</a> (N-Triples)
+  </p>
+
+  <h2>Source, pipeline, and licence</h2>
+  <ul>
+    <li>Repository and reproducible pipeline:
+        <a href="https://github.com/marianamalta/whs-kg">github.com/marianamalta/whs-kg</a></li>
+    <li>Data licence: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>;
+        code licence: MIT.</li>
+    <li>Authoritative source:
+        <a href="https://whc.unesco.org/en/syndication">UNESCO World Heritage Centre syndication</a>
+        (this is an independent derivative, not endorsed by UNESCO).</li>
+  </ul>
+
+  <h2>How to cite</h2>
+  <p>Santos, Pl&aacute;cido, and Curado Malta (2026),
+     <em>Building an Interoperable Knowledge Graph of the UNESCO World Heritage
+     Sites</em>. See the repository's <code>CITATION.cff</code>.</p>
+
+  <footer>
+    A hosted public SPARQL endpoint is planned; meanwhile, load the dumps above
+    into any SPARQL engine to run federated queries. Maintained by
+    Mariana Curado Malta.
+  </footer>
+</body>
+</html>
