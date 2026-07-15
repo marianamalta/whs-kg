@@ -16,6 +16,7 @@ for what is editorial; the pipeline **flags gaps instead of guessing**.
 | 3. Reconcile | `reconcile.py` | `authority/*.csv` + `authority/review_needed.txt` |
 | 3b. Curate (optional) | `curate.py` | `authority/curation_todo.txt`, `authority/danger_types_todo.csv` |
 | 4. Build & validate | `build_graph.py` | `out/whs.ttl`, `out/whs.nt`, `out/stats.txt`, SHACL report |
+| 4 · incremental (optional) | `build_graph.py --incremental` | same outputs, but patches the existing graph — only added/changed sites are rebuilt |
 | 4b. Ablation (optional) | `ablate_cleaning.py` | prints SHACL violations with cleaning on vs. off (paper Table 6) |
 | 5. Diff (optional) | `diff.py` | `out/changelog-<date>.txt`, `out/delta-<date>.ru` (SPARQL UPDATE patch) |
 
