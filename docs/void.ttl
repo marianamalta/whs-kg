@@ -1,0 +1,81 @@
+@prefix void:    <http://rdfs.org/ns/void#> .
+@prefix dcat:    <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix edm:     <http://www.europeana.eu/schemas/edm/> .
+@prefix schema:  <http://schema.org/> .
+
+#################################################################
+# Dataset-level metadata for the UNESCO World
+# Heritage knowledge graph. Describes the graph as a whole:
+# provenance, size, vocabularies, distributions, and links.
+#################################################################
+
+<https://w3id.org/whs/dataset> a void:Dataset , dcat:Dataset ;
+    dcterms:title       "UNESCO World Heritage Knowledge Graph"@en ;
+    dcterms:description "A five-star, FAIR-oriented RDF knowledge graph of the UNESCO World Heritage sites, derived from the official World Heritage Centre syndication export and validated against SHACL shapes derived from a Metadata Application Profile."@en ;
+    dcterms:creator     "Mariana Curado Malta" , "Alexandre H. S. Santos" , "Pedro T. L. B. Plácido" ;
+    dcterms:publisher   "INESC TEC, Faculdade de Engenharia, Universidade do Porto" ;
+    dcterms:license     <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:source      <https://whc.unesco.org/en/syndication> ;
+    dcterms:issued      "2026-07-15"^^xsd:date ;
+    dcterms:modified    "2026-07-15"^^xsd:date ;
+    dcterms:identifier  <https://doi.org/10.5281/zenodo.21374112> ;
+    dcat:landingPage    <https://marianamalta.github.io/whs-kg/> ;
+    dcat:keyword        "UNESCO World Heritage" , "knowledge graph" ,
+                        "linked open data" , "RDF" , "SHACL" , "FAIR" ;
+
+    void:uriSpace       "https://w3id.org/whs/" ;
+    void:triples        29606 ;
+    void:entities       1342 ;
+    void:distinctSubjects 1342 ;
+    void:exampleResource <https://w3id.org/whs/site/755> ,
+                         <https://w3id.org/whs/site/338> ,
+                         <https://w3id.org/whs/site/366> ;
+
+    void:vocabulary <http://purl.org/dc/terms/> ,
+                    <http://schema.org/> ,
+                    <http://www.w3.org/2003/01/geo/wgs84_pos#> ,
+                    <http://www.cidoc-crm.org/cidoc-crm/> ,
+                    <http://www.europeana.eu/schemas/edm/> ,
+                    <http://www.wikidata.org/prop/direct/> ,
+                    <http://dbpedia.org/ontology/> ;
+
+    void:feature  <http://www.w3.org/ns/formats/Turtle> ,
+                  <http://www.w3.org/ns/formats/N-Triples> ;
+    void:dataDump <https://marianamalta.github.io/whs-kg/whs.ttl> ,
+                  <https://marianamalta.github.io/whs-kg/whs.nt> ;
+
+    void:classPartition [ void:class crm:E18_Physical_Thing ; void:entities 1248 ] ;
+    void:classPartition [ void:class crm:E5_Event          ; void:entities   94 ] ;
+
+    dcat:distribution <https://w3id.org/whs/distribution/turtle> ,
+                      <https://w3id.org/whs/distribution/ntriples> .
+
+<https://w3id.org/whs/distribution/turtle> a dcat:Distribution ;
+    dcterms:title "Turtle dump"@en ;
+    dcat:downloadURL <https://marianamalta.github.io/whs-kg/whs.ttl> ;
+    dcat:mediaType "text/turtle" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> .
+
+<https://w3id.org/whs/distribution/ntriples> a dcat:Distribution ;
+    dcterms:title "N-Triples dump"@en ;
+    dcat:downloadURL <https://marianamalta.github.io/whs-kg/whs.nt> ;
+    dcat:mediaType "application/n-triples" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> .
+
+# --- Linksets to the external hubs the graph connects to --------
+<https://w3id.org/whs/linkset/wikidata> a void:Linkset ;
+    void:subjectsTarget <https://w3id.org/whs/dataset> ;
+    void:objectsTarget  <https://www.wikidata.org/> ;
+    void:linkPredicate  schema:sameAs ;
+    void:triples 1146 .
+
+<https://w3id.org/whs/linkset/getty-tgn> a void:Linkset ;
+    void:subjectsTarget <https://w3id.org/whs/dataset> ;
+    void:objectsTarget  <http://vocab.getty.edu/tgn/> ;
+    void:linkPredicate  edm:country ;
+    void:triples 1353 .
