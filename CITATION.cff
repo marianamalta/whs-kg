@@ -8,7 +8,7 @@ abstract: >-
   MAP-driven RDF generation, and SHACL validation.
 type: software
 version: "1.0.1"
-doi: "10.5281/zenodo.21374112"
+doi: "10.5281/zenodo.21374111"
 date-released: "2026-07-15"
 authors:
   - given-names: "Mariana"
@@ -49,4 +49,4 @@ preferred-citation:
   journal: "Journal on Computing and Cultural Heritage"
   year: 2026
   status: submitted
-  notes: "Submitted to the ACM Journal on Computing and Cultural Heritage (JOCCH). Under Review."
+  notes: "Submitted to the ACM Journal on Computing and Cultural Heritage (JOCCH). Update volume, issue, pages, and DOI on publication."
