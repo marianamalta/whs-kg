@@ -22,14 +22,14 @@
     dcterms:license     <https://creativecommons.org/licenses/by/4.0/> ;
     dcterms:source      <https://whc.unesco.org/en/syndication> ;
     dcterms:issued      "2026-07-15"^^xsd:date ;
-    dcterms:modified    "2026-07-15"^^xsd:date ;
+    dcterms:modified    "2026-07-17"^^xsd:date ;
     dcterms:identifier  <https://doi.org/10.5281/zenodo.21374111> ;
     dcat:landingPage    <https://marianamalta.github.io/whs-kg/> ;
     dcat:keyword        "UNESCO World Heritage" , "knowledge graph" ,
                         "linked open data" , "RDF" , "SHACL" , "FAIR" ;
 
     void:uriSpace       "https://w3id.org/whs/" ;
-    void:triples        29606 ;
+    void:triples        29604 ;
     void:entities       1342 ;
     void:distinctSubjects 1342 ;
     void:exampleResource <https://w3id.org/whs/site/755> ,
