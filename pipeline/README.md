@@ -97,8 +97,10 @@ runs pySHACL against `whs-shapes.ttl`.
   against Getty's own endpoint.
 - Every run is a dated snapshot; re-run after each World Heritage Committee
   session to refresh the graph (paper future-work item i).
-- The `rev` suffix is mapped to version 2 by default (`SUFFIX_VERSION` in
-  `clean.py`); adjust if a site carries both `rev` and an ordinal suffix.
+- Entry versions (`SUFFIX_VERSION` in `clean.py`): the original (unsuffixed)
+  entry is version 0 and is left implicit (no `schema:version` triple); a
+  revision is materialised as `rev` = 1, `bis` = 2, `ter` = 3, `quater` = 4,
+  `quinquies` = 5.
 
 ## Licence
 
@@ -111,6 +113,4 @@ syndication export and are not endorsed by UNESCO.
 
 ## How to cite
 
-See [`CITATION.cff`](CITATION.cff), or cite the accompanying paper:
-*Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites*
-(Santos, Plácido, and Curado Malta, 2026).
+See [`CITATION.cff`](CITATION.cff).

@@ -21,8 +21,9 @@ CLEAN_DIR = Path("data/clean")
 LANGS = ["en", "fr", "es", "ru", "ar", "zh"]
 
 # (3) rev_bis -> integer version of the entry (P2 in the paper).
-SUFFIX_VERSION = {"": 1, "bis": 2, "ter": 3, "quater": 4, "quinquies": 5,
-                  "rev": 2}  # editorial default, see README
+# The original (unsuffixed) entry is version 0 and is left implicit; a
+# materialised version marks a revision: rev=1, then the Latin ordinals.
+SUFFIX_VERSION = {"rev": 1, "bis": 2, "ter": 3, "quater": 4, "quinquies": 5}
 
 # Manual corrections for malformed rev_bis values, checked against the
 # World Heritage Centre records (paper section 4.1, operation 3).
@@ -49,12 +50,16 @@ def strip_html(value):
 
 
 def clean_rev_bis(value, id_no) -> int | None:
-    """(3) suffix -> version integer; invalid values are flagged, not guessed."""
+    """(3) suffix -> version integer; invalid values are flagged, not guessed.
+
+    The original (unsuffixed) entry is version 0 and returns None, so the build
+    omits the property; only a revision carries a materialised version."""
     if id_no in REV_BIS_OVERRIDES:
-        return SUFFIX_VERSION[REV_BIS_OVERRIDES[id_no]]
-    if value is None or (isinstance(value, float) and pd.isna(value)):
-        return None
-    text = str(value).strip().lower()
+        text = REV_BIS_OVERRIDES[id_no].strip().lower()
+    elif value is None or (isinstance(value, float) and pd.isna(value)):
+        text = ""
+    else:
+        text = str(value).strip().lower()
     if text in ("", "nan"):
         return None
     if text in SUFFIX_VERSION:
