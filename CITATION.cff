@@ -7,9 +7,9 @@ abstract: >-
   extraction, cleaning, reconciliation (Wikidata, Getty TGN, UNESCO Thesaurus),
   MAP-driven RDF generation, and SHACL validation.
 type: software
-version: "1.0.1"
+version: "2.0.0"
 doi: "10.5281/zenodo.21374111"
-date-released: "2026-07-15"
+date-released: "2026-12-01"  # update on release
 authors:
   - given-names: "Mariana"
     family-names: "Curado Malta"
@@ -37,7 +37,7 @@ keywords:
   - "FAIR"
 preferred-citation:
   type: article
-  title: "Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites"
+  title: "WHS-KG: A FAIR Linked Data Resource for the UNESCO World Heritage List, Built with a Data-Driven Metadata Application Profile"
   authors:
     - given-names: "Mariana"
       family-names: "Curado Malta"

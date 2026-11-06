@@ -1,0 +1,199 @@
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix whs-sh:  <https://w3id.org/whs/shapes/> .
+@prefix whs:     <https://w3id.org/whs/terms/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <http://schema.org/> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix wdt:     <http://www.wikidata.org/prop/direct/> .
+@prefix wd:      <http://www.wikidata.org/entity/> .
+@prefix dbo:     <http://dbpedia.org/ontology/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# SHACL shapes for the WHS Metadata Application Profile, version 2.0.
+# One node shape per MAP entity; every constraint carries an sh:message so
+# validation reports read as MAP rules. Licence: MIT (see ../LICENSE).
+# ---------------------------------------------------------------------------
+
+<https://w3id.org/whs/shapes/>
+    a owl:Ontology ;
+    rdfs:label "SHACL shapes for the WHS Metadata Application Profile"@en ;
+    owl:versionInfo "2.0.0" .
+
+# ======================== Site ==============================================
+whs-sh:SiteShape
+    a sh:NodeShape ;
+    rdfs:label "Site"@en ;
+    sh:targetClass crm:E18_Physical_Thing ;
+    sh:closed false ;
+
+    sh:property [
+        sh:path dcterms:identifier ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:integer ; sh:minInclusive 1 ;
+        sh:message "Site: exactly one official UNESCO id_no (xsd:integer >= 1)." ] ;
+
+    sh:property [
+        sh:path dcterms:source ;
+        sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+        sh:pattern "^https://whc\\.unesco\\.org/en/list/[0-9]+$" ;
+        sh:message "Site: exactly one dcterms:source pointing to the official WHC page https://whc.unesco.org/en/list/{id_no}." ] ;
+
+    sh:property [
+        sh:path schema:version ;
+        sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 1 ;
+        sh:message "Site: at most one entry version, an integer >= 1 (the unsuffixed original, version 0, is implicit)." ] ;
+
+    sh:property [
+        sh:path dcterms:title ;
+        sh:minCount 1 ; sh:datatype rdf:langString ; sh:uniqueLang true ;
+        sh:message "Site: at least one name, language-tagged, at most one per language." ] ;
+
+    sh:property [
+        sh:path dcterms:description ;
+        sh:datatype rdf:langString ; sh:uniqueLang true ;
+        sh:message "Site: short description must be language-tagged, at most one per language." ] ;
+
+    sh:property [
+        sh:path whs:justification ;
+        sh:datatype rdf:langString ; sh:uniqueLang true ;
+        sh:message "Site: justification must be language-tagged, at most one per language." ] ;
+
+    sh:property [
+        sh:path whs:criterionJustification ;
+        sh:nodeKind sh:IRI ; sh:class whs:CriterionJustification ;
+        sh:node whs-sh:CriterionJustificationShape ;
+        sh:message "Site: whs:criterionJustification must point to a valid whs:CriterionJustification." ] ;
+
+    sh:property [
+        sh:path dcterms:dateAccepted ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:pattern "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" ;
+        sh:message "Site: exactly one inscription date, an EDTF year or date (YYYY, YYYY-MM or YYYY-MM-DD)." ] ;
+
+    sh:property [
+        sh:path dcterms:date ;
+        sh:pattern "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$" ;
+        sh:message "Site: each secondary date must be a single EDTF year or date." ] ;
+
+    sh:property [
+        sh:path geo:lat ;
+        sh:maxCount 1 ; sh:datatype xsd:decimal ;
+        sh:minInclusive -90 ; sh:maxInclusive 90 ;
+        sh:message "Site: at most one latitude, xsd:decimal in [-90, 90]." ] ;
+
+    sh:property [
+        sh:path geo:long ;
+        sh:maxCount 1 ; sh:datatype xsd:decimal ;
+        sh:minInclusive -180 ; sh:maxInclusive 180 ;
+        sh:message "Site: at most one longitude, xsd:decimal in [-180, 180]." ] ;
+
+    sh:property [
+        sh:path dbo:areaTotal ;
+        sh:maxCount 1 ; sh:datatype xsd:decimal ; sh:minExclusive 0 ;
+        sh:message "Site: at most one area, xsd:decimal > 0, in square metres (0 = not reported in the source, omitted)." ] ;
+
+    sh:property [
+        sh:path wdt:P2614 ;
+        sh:minCount 1 ; sh:nodeKind sh:IRI ;
+        sh:in ( wd:Q23038972 wd:Q23038976 wd:Q23038977 wd:Q23038978
+                wd:Q23038979 wd:Q23038980 wd:Q23038981 wd:Q23038983
+                wd:Q23038985 wd:Q23038986 ) ;
+        sh:message "Site: at least one inscription criterion, from the ten Wikidata criterion items (i)-(x)." ] ;
+
+    sh:property [
+        sh:path whs:stateParty ;
+        sh:minCount 1 ; sh:nodeKind sh:IRI ;
+        sh:pattern "^http://vocab\\.getty\\.edu/tgn/[0-9]+$" ;
+        sh:message "Site: at least one State Party, as a Getty TGN URI (expected exception: site 148, which has no State Party in the source)." ] ;
+
+    sh:property [
+        sh:path whs:region ;
+        sh:minCount 1 ; sh:nodeKind sh:IRI ;
+        sh:in ( <https://w3id.org/whs/region/africa>
+                <https://w3id.org/whs/region/arab-states>
+                <https://w3id.org/whs/region/asia-pacific>
+                <https://w3id.org/whs/region/europe-north-america>
+                <https://w3id.org/whs/region/latin-america-caribbean> ) ;
+        sh:message "Site: at least one World Heritage region, from the WHS region scheme (vocab/whs-regions.ttl)." ] ;
+
+    sh:property [
+        sh:path schema:sameAs ;
+        sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+        sh:pattern "^http://www\\.wikidata\\.org/entity/Q[0-9]+$" ;
+        sh:message "Site: at most one reconciled Wikidata item." ] ;
+
+    sh:property [
+        sh:path crm:P12i_was_present_at ;
+        sh:nodeKind sh:IRI ; sh:class crm:E5_Event ;
+        sh:node whs-sh:DangerListingShape ;
+        sh:message "Site: danger listings must be valid Danger Listing events." ] .
+
+# ======================== Danger Listing ====================================
+whs-sh:DangerListingShape
+    a sh:NodeShape ;
+    rdfs:label "Danger Listing"@en ;
+    sh:targetClass crm:E5_Event ;
+
+    sh:property [
+        sh:path dcterms:subject ;
+        sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+        sh:in ( <http://vocabularies.unesco.org/thesaurus/concept8105>
+                <http://vocabularies.unesco.org/thesaurus/concept6445>
+                <http://vocabularies.unesco.org/thesaurus/concept4772>
+                <http://vocabularies.unesco.org/thesaurus/concept640>
+                <http://vocabularies.unesco.org/thesaurus/concept448> ) ;
+        sh:message "Danger Listing: exactly one danger type from the danger-type VES (UNESCO Thesaurus excerpt). Unmapped events are curation gaps." ] ;
+
+    sh:property [
+        sh:path dcterms:temporal ;
+        sh:minCount 1 ;
+        sh:pattern "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?/([0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?|\\.\\.)$" ;
+        sh:message "Danger Listing: at least one period, an EDTF interval start/end or start/.. (open: still on the List)." ] ;
+
+    sh:property [
+        sh:path [ sh:inversePath crm:P12i_was_present_at ] ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:message "Danger Listing: must be referenced by exactly one site." ] .
+
+# ======================== Criterion Justification ===========================
+whs-sh:CriterionJustificationShape
+    a sh:NodeShape ;
+    rdfs:label "Criterion Justification"@en ;
+    sh:targetClass whs:CriterionJustification ;
+
+    sh:property [
+        sh:path dcterms:subject ;
+        sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+        sh:in ( wd:Q23038972 wd:Q23038976 wd:Q23038977 wd:Q23038978
+                wd:Q23038979 wd:Q23038980 wd:Q23038981 wd:Q23038983
+                wd:Q23038985 wd:Q23038986 ) ;
+        sh:message "Criterion Justification: exactly one criterion (Wikidata criterion item)." ] ;
+
+    sh:property [
+        sh:path whs:justification ;
+        sh:minCount 1 ; sh:datatype rdf:langString ; sh:uniqueLang true ;
+        sh:message "Criterion Justification: at least one language-tagged text, at most one per language." ] ;
+
+    sh:property [
+        sh:path [ sh:inversePath whs:criterionJustification ] ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:message "Criterion Justification: must belong to exactly one site." ] .
+
+# The criterion of a justification must be one the site actually meets.
+whs-sh:CriterionConsistencyShape
+    a sh:NodeShape ;
+    sh:targetClass whs:CriterionJustification ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "Criterion Justification: its criterion is not among the site's inscription criteria (wdt:P2614)." ;
+        sh:select """
+            SELECT $this WHERE {
+              ?site <https://w3id.org/whs/terms/criterionJustification> $this .
+              $this <http://purl.org/dc/terms/subject> ?c .
+              FILTER NOT EXISTS { ?site <http://www.wikidata.org/prop/direct/P2614> ?c }
+            }""" ] .

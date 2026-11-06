@@ -1,0 +1,55 @@
+@prefix whsr:    <https://w3id.org/whs/region/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix unescot: <http://vocabularies.unesco.org/thesaurus/> .
+
+# ---------------------------------------------------------------------------
+# The five World Heritage regions as a SKOS concept scheme.
+#
+# The UNESCO World Heritage regional division (used in the World Heritage
+# List and in Periodic Reporting) has no one-to-one counterpart in the UNESCO
+# Thesaurus: the Thesaurus groups countries in microthesauri (mt7.x), whose
+# URIs do not dereference, and three of the five regions are compositions of
+# Thesaurus concepts. Each region is therefore minted here and mapped to the
+# (dereferenceable) Thesaurus concepts with SKOS mapping properties:
+# closeMatch where one Thesaurus concept approximates the region, relatedMatch
+# for the composite regions, whose parts only partly overlap the region
+# (e.g. Western Asian States belong to the Arab States region, not to
+# Asia and the Pacific).
+# ---------------------------------------------------------------------------
+
+whsr:
+    a skos:ConceptScheme ;
+    dcterms:title "World Heritage regions"@en, "Régions du patrimoine mondial"@fr ;
+    dcterms:description "The five regions used by the UNESCO World Heritage Centre to group States Parties, as a SKOS concept scheme mapped to the UNESCO Thesaurus."@en ;
+    dcterms:source <https://whc.unesco.org/en/list/> ;
+    owl:versionInfo "2.0.0" ;
+    skos:hasTopConcept whsr:africa, whsr:arab-states, whsr:asia-pacific,
+                       whsr:europe-north-america, whsr:latin-america-caribbean .
+
+whsr:africa
+    a skos:Concept ; skos:inScheme whsr: ; skos:topConceptOf whsr: ;
+    skos:prefLabel "Africa"@en, "Afrique"@fr ;
+    skos:closeMatch unescot:concept688 .   # Africa (the WH region excludes the
+                                          # North African Arab States)
+
+whsr:arab-states
+    a skos:Concept ; skos:inScheme whsr: ; skos:topConceptOf whsr: ;
+    skos:prefLabel "Arab States"@en, "États arabes"@fr ;
+    skos:closeMatch unescot:concept960 .
+
+whsr:asia-pacific
+    a skos:Concept ; skos:inScheme whsr: ; skos:topConceptOf whsr: ;
+    skos:prefLabel "Asia and the Pacific"@en, "Asie et Pacifique"@fr ;
+    skos:relatedMatch unescot:concept812, unescot:concept856 . # Asia; Oceania
+
+whsr:europe-north-america
+    a skos:Concept ; skos:inScheme whsr: ; skos:topConceptOf whsr: ;
+    skos:prefLabel "Europe and North America"@en, "Europe et Amérique du Nord"@fr ;
+    skos:relatedMatch unescot:concept901, unescot:concept791 . # Europe; North America
+
+whsr:latin-america-caribbean
+    a skos:Concept ; skos:inScheme whsr: ; skos:topConceptOf whsr: ;
+    skos:prefLabel "Latin America and the Caribbean"@en, "Amérique latine et Caraïbes"@fr ;
+    skos:relatedMatch unescot:concept966, unescot:concept767 . # Latin America; Caribbean

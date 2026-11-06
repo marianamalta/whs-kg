@@ -5,7 +5,7 @@ pipeline. It builds a graph from the RAW export with the data-quality cleaning
 turned OFF, but keeps the structural mapping and, crucially, RECONCILIATION ON
 (the same authority files: Wikidata, Getty TGN, UNESCO regions, danger types).
 That way every violation counted is attributable to *cleaning*, not to missing
-links -- otherwise every site would fail edm:country / dcterms:spatial for lack
+links -- otherwise every site would fail whs:stateParty / whs:region for lack
 of a reconciled URI and swamp the signal.
 
 It then reports, side by side:

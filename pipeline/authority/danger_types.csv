@@ -1,0 +1,97 @@
+id_no,label,confidence,rationale
+1,Urbanization,M,"tourism growth, immigration, invasive species pressure"
+8,Urbanization,L,upstream dams cut freshwater inflow - verify
+9,Urbanization,M,"road building, agricultural encroachment, population"
+20,War,H,Syrian civil war
+21,War,H,Syrian civil war
+22,War,H,Syrian civil war
+23,War,H,Syrian civil war
+25-1,Urbanization,L,Diama dam altered hydrology (1984-88) - verify
+25-2,Natural hazards,L,invasive Salvinia weed choked the lake (2000-06) - verify
+28,Pollution,M,"proposed adjacent mine, sewage leakage, water quality"
+32,Materials,H,humidity dissolving the salt carvings
+39,Urbanization,L,encroachment and management decline - verify
+63,War,H,armed conflict and refugee crisis
+76,Pollution,H,"degraded water inflows, nutrient pollution (both listings)"
+90,Materials,M,rising water table collapsing clay structures
+95,War,H,1991 shelling of the old city
+98,War,H,occupation during the war in Croatia
+116,War,M,insecurity in central Mali; also erosion of earthen fabric
+119-1,War,H,"2012 armed occupation, destruction of mausoleums"
+119-2,Natural hazards,M,sand encroachment / desertification (1990-2005)
+121,Urbanization,H,uncontrolled urban development
+125,Natural hazards,H,1979 earthquake
+135,Materials,M,"environmental decay, lack of maintenance"
+136,War,M,"armed poaching, later armed conflict (both episodes)"
+137,War,H,"civil war, armed groups in the park"
+144,Materials,M,erosion and decay of the ruins
+148,Urbanization,L,"urban development pressure - politically complex, verify"
+153,Urbanization,L,poaching plus planned Sambangalou dam - verify
+155,Urbanization,M,"iron-ore mining concession, refugee influx"
+171,Materials,M,decay and water damage to walls and gardens
+183,War,H,conflict in Libya
+184,War,H,conflict in Libya
+190,War,H,conflict in Libya
+192,War,H,conflict in Yemen
+193,Urbanization,M,urban encroachment on the archaeological site
+196,Urbanization,M,"illegal settlement, logging, encroachment (both listings)"
+199,Urbanization,L,industrial-scale elephant poaching; no clean VES fit - verify
+208,War,H,"destruction of the Buddhas, post-conflict fragility"
+211,Natural hazards,L,"flooding, precarious state; insecurity too - verify"
+219,Pollution,M,altered water regime degrading the lake ecosystem
+227,War,M,"civil unrest after the 2002 coup, poaching"
+241,Urbanization,H,bridge construction over the Tungabhadra
+260,Urbanization,M,"road construction through the park, poaching"
+276,War,H,conflict in Iraq
+277,War,H,ISIL occupation
+280,War,L,conflict-era poaching and pressures - verify
+287,War,M,"conflict in Libya, vandalism of the rock art"
+292,Urbanization,H,high-rise development facing the cathedral
+323,Natural hazards,H,1984 tornado damage to the earthen palaces
+338,War,H,already curated (Manas)
+355,Urbanization,H,illegally reopened Colono road
+362,War,H,conflict in Libya
+366,Natural hazards,M,El Nino rains eroding the earthen architecture
+385,War,H,conflict in Yemen
+420,Urbanization,M,continued mining destabilising Cerro Rico
+433,Materials,H,"decay of the adobe fort (restored, delisted 2004)"
+475,War,H,"armed poaching, killing of park staff"
+527,War,H,Russian invasion of Ukraine
+570,War,M,1997 unrest and looting
+573,War,H,Tuareg rebellion
+611,Urbanization,M,traditional houses replaced by concrete
+658,Natural hazards,L,heavy-rain damage to earthen structures - verify
+668,War,M,post-conflict looting and landmines
+684,War,H,rebel activity in the park
+708,Materials,M,"deterioration, loss of authenticity of stonework"
+710,Materials,L,inappropriate reconstruction (Bagrati) - verify
+711,Urbanization,M,"deforestation, illegal logging"
+718,War,H,armed conflict in DRC
+722,Materials,M,terraces degrading after abandonment
+724,War,M,"post-conflict instability, lack of protection"
+764,Urbanization,H,"mangrove clearance, coastal development"
+801,Urbanization,M,Gibe III dam disrupting lake inflows
+854,Urbanization,M,commercial logging
+865,War,H,Russian invasion of Ukraine
+885,Urbanization,H,demolition and redevelopment of the medieval quarter
+958,Natural hazards,M,"2000 earthquake damage, plus development pressure"
+1022,Natural hazards,M,2010 fire destroyed the main tomb
+1033,Urbanization,H,high-rise projects in the historic centre
+1130,Urbanization,M,planned Makhool dam would flood the site
+1139,War,H,armed conflict in Mali
+1167,Urbanization,M,"roads, encroachment, illegal logging"
+1178,Materials,H,fragile corroding industrial structures
+1182,Urbanization,L,"illegal totoaba fishing, vaquita collapse; no clean VES fit - verify"
+1208,Natural hazards,H,2003 earthquake
+1229,War,H,Syrian civil war
+1257,Urbanization,M,illegal rosewood logging and hunting
+1348,War,H,Syrian civil war
+1433,Materials,H,"roof decay (repaired, delisted 2019)"
+1492,Urbanization,M,separation barrier fragmenting the terraces
+1503,Natural hazards,M,mangrove overgrowth and siltation undermining ruins
+1552,Urbanization,H,planned open-pit gold mining
+1565,War,M,"conflict context, urban pressure - verify"
+1700,War,H,conflict in Yemen
+1702,Materials,M,alarming state of conservation - verify
+1703,War,H,Russian invasion of Ukraine
+1749,War,H,war in Gaza

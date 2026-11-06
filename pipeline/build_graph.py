@@ -3,7 +3,16 @@
 Reads data/clean/sites.json + the authority files, emits out/whs.ttl and
 out/whs.nt, validates with pySHACL against whs-shapes.ttl, and prints the
 statistics block used in the paper's Results section.
+
+v2 (MAP 2.0, resubmission): DCMI Terms is the primary target vocabulary;
+three local refinements (whs:stateParty, whs:region, whs:justification) plus
+one class (whs:CriterionJustification) are declared in ../vocab/whs-terms.ttl
+as sub-properties of DCMI terms; edm:country and schema:description are no
+longer used; area is xsd:decimal in square metres (dbo:areaTotal semantics);
+every site links to its official UNESCO page with dcterms:source.
 """
+import re
+from decimal import Decimal
 import argparse
 import csv
 import json
@@ -20,13 +29,22 @@ DCTERMS = Namespace("http://purl.org/dc/terms/")
 SCHEMA = Namespace("http://schema.org/")
 GEO = Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#")
 CRM = Namespace("http://www.cidoc-crm.org/cidoc-crm/")
-EDM = Namespace("http://www.europeana.eu/schemas/edm/")
+WHS = Namespace("https://w3id.org/whs/terms/")
+WHS_JUST = Namespace("https://w3id.org/whs/justification/")
 WDT = Namespace("http://www.wikidata.org/prop/direct/")
 WD = Namespace("http://www.wikidata.org/entity/")
 DBO = Namespace("http://dbpedia.org/ontology/")
 TGN = Namespace("http://vocab.getty.edu/tgn/")
 
-CRITERIA_QIDS = ["Q15911738", "Q23038976", "Q23038977", "Q23038978",
+ROMAN = {"i": 1, "ii": 2, "iii": 3, "iv": 4, "v": 5, "vi": 6, "vii": 7,
+         "viii": 8, "ix": 9, "x": 10}
+# "Criterion (ii):", "Critère (iv) :", "Criteria (ii) and (iii):" ...
+CRIT_MARK = re.compile(
+    r"Crit(?:erion|eria|\u00e8re|\u00e8res)\s*"
+    r"((?:\(\s*[ivx]+\s*\)[\s,&]*(?:and|et)?\s*)+)\s*:")
+UNESCO_PAGE = "https://whc.unesco.org/en/list/{}"
+
+CRITERIA_QIDS = ["Q23038972", "Q23038976", "Q23038977", "Q23038978",
                  "Q23038979", "Q23038980", "Q23038981", "Q23038983",
                  "Q23038985", "Q23038986"]  # (i)..(x)
 
@@ -58,10 +76,27 @@ def new_graph() -> Graph:
     g = Graph()
     for prefix, ns in [("whs-site", WHS_SITE), ("whs-danger", WHS_DANGER),
                        ("dcterms", DCTERMS), ("schema", SCHEMA), ("geo", GEO),
-                       ("crm", CRM), ("edm", EDM), ("wdt", WDT), ("wd", WD),
+                       ("crm", CRM), ("whs", WHS), ("whs-just", WHS_JUST),
+                       ("wdt", WDT), ("wd", WD),
                        ("dbo", DBO), ("tgn", TGN)]:
         g.bind(prefix, ns)
     return g
+
+
+def split_justification(text: str) -> dict[int, str]:
+    """Split a structured justification ("Criterion (ii): ... Criterion (iv):
+    ...") into {criterion number: text}. Returns {} when the text has no
+    criterion markers (about a third of the records): those keep only the
+    full whs:justification literal."""
+    marks = list(CRIT_MARK.finditer(text))
+    out: dict[int, str] = {}
+    for k, m in enumerate(marks):
+        end = marks[k + 1].start() if k + 1 < len(marks) else len(text)
+        body = text[m.end():end].strip()
+        for roman in re.findall(r"[ivx]+", m.group(1)):
+            if roman in ROMAN and body:
+                out[ROMAN[roman]] = body
+    return out
 
 
 def add_site(g: Graph, s: dict, auth: dict) -> dict:
@@ -75,6 +110,9 @@ def add_site(g: Graph, s: dict, auth: dict) -> dict:
         g.add((site, RDF.type, CRM["E18_Physical_Thing"]))
         g.add((site, DCTERMS.identifier,
                Literal(s["id_no"], datatype=XSD.integer)))
+        # actionable link to the authoritative record (provenance, R1)
+        g.add((site, DCTERMS.source,
+               URIRef(UNESCO_PAGE.format(s["id_no"]))))
 
         if s.get("version"):
             g.add((site, SCHEMA.version,
@@ -84,8 +122,19 @@ def add_site(g: Graph, s: dict, auth: dict) -> dict:
             g.add((site, DCTERMS.title, Literal(text, lang=lang)))
         for lang, text in s["descriptions"].items():
             g.add((site, DCTERMS.description, Literal(text, lang=lang)))
+        # justification: full text with a DCMI refinement (whs:justification
+        # rdfs:subPropertyOf dcterms:description) + one structured node per
+        # criterion when the text is segmented by criterion markers
         for lang, text in s["justifications"].items():
-            g.add((site, SCHEMA.description, Literal(text, lang=lang)))
+            g.add((site, WHS.justification, Literal(text, lang=lang)))
+            for c, body in split_justification(text).items():
+                if c not in s["criteria"]:
+                    continue  # marker for a criterion the site does not meet
+                node = WHS_JUST[f"{s['id_no']}-{c}"]
+                g.add((site, WHS.criterionJustification, node))
+                g.add((node, RDF.type, WHS.CriterionJustification))
+                g.add((node, DCTERMS.subject, WD[CRITERIA_QIDS[c - 1]]))
+                g.add((node, WHS.justification, Literal(body, lang=lang)))
 
         if s.get("date_inscribed"):                       # EDTF literal
             g.add((site, DCTERMS.dateAccepted, Literal(s["date_inscribed"])))
@@ -101,9 +150,15 @@ def add_site(g: Graph, s: dict, auth: dict) -> dict:
             g.add((site, GEO.long,
                    Literal(str(s["longitude"]), datatype=XSD.decimal)))
         # the WHC export uses 0 to mean "area not reported" -> omit the triple
+        # dbo:areaTotal is defined in square metres: convert ha -> m2 exactly
+        # and use xsd:decimal (no exponential notation)
         if s.get("area_hectares"):
-            g.add((site, DBO.areaTotal,
-                   Literal(s["area_hectares"], datatype=XSD.double)))
+            try:
+                lex = format((Decimal(str(s["area_hectares"])) * 10000)
+                             .normalize(), "f")
+            except ArithmeticError:   # unparsable raw value (ablation run):
+                lex = str(s["area_hectares"])  # keep it so SHACL flags it
+            g.add((site, DBO.areaTotal, Literal(lex, datatype=XSD.decimal)))
 
         for c in s["criteria"]:
             g.add((site, WDT.P2614, WD[CRITERIA_QIDS[c - 1]]))
@@ -111,15 +166,17 @@ def add_site(g: Graph, s: dict, auth: dict) -> dict:
         for iso in s["iso_codes"]:                        # states via TGN
             row = states.get(iso, {})
             if row.get("tgn_id"):
-                g.add((site, EDM.country, TGN[row["tgn_id"]]))
+                g.add((site, WHS.stateParty, TGN[row["tgn_id"]]))
                 n_tgn_links += 1
 
         # transboundary sites may carry several comma-separated regions
         for reg_name in [r.strip() for r in
                          s.get("region_en", "").split(",") if r.strip()]:
             reg = regions.get(reg_name, {})
-            if reg.get("unescot_uri"):
-                g.add((site, DCTERMS.spatial, URIRef(reg["unescot_uri"])))
+            # v2: WH regions are a local SKOS scheme (../vocab/whs-regions.ttl)
+            # mapped to the UNESCO Thesaurus; mt7.x URIs do not dereference
+            if reg.get("region_uri"):
+                g.add((site, WHS.region, URIRef(reg["region_uri"])))
 
         wd_row = wikidata.get(str(s["id_no"]), {})
         if wd_row.get("wikidata_qid") and wd_row.get("status") == "ok":
@@ -161,7 +218,7 @@ def remove_site(g: Graph, id_no) -> None:
 def graph_stats(g: Graph) -> list[str]:
     """Statistics read back from the finished graph, so the same numbers are
     reported whether the graph was built from scratch or patched in place."""
-    country = list(g.triples((None, EDM.country, None)))
+    country = list(g.triples((None, WHS.stateParty, None)))
     n_sites = len(set(g.subjects(RDF.type, CRM["E18_Physical_Thing"])))
     n_events = len(set(g.subjects(RDF.type, CRM["E5_Event"])))
     n_wd = sum(1 for _ in g.triples((None, SCHEMA.sameAs, None)))
@@ -169,9 +226,11 @@ def graph_stats(g: Graph) -> list[str]:
         f"triples:              {len(g):,}",
         f"site resources:       {n_sites:,}",
         f"danger events:        {n_events}",
-        f"edm:country links:    {len(country)} (distinct TGN entries: "
+        f"whs:stateParty links: {len(country)} (distinct TGN entries: "
         f"{len({o for _, _, o in country})})",
         f"wikidata sameAs:      {n_wd}",
+        f"criterion justif.:    "
+        f"{len(set(g.subjects(RDF.type, WHS.CriterionJustification)))}",
     ]
 
 
@@ -182,6 +241,48 @@ def build_full() -> Graph:
     g = new_graph()
     for s in sites:
         add_site(g, s, auth)
+    return g
+
+
+def build_removed(current_ids: set) -> Graph:
+    """Properties that were in an earlier snapshot but are no longer on the
+    List (e.g. removed by the World Heritage Committee). Their URIs must keep
+    resolving, so their LAST description is kept, in a separate graph
+    (out/whs-removed.ttl -> named graph .../graph/removed), with the period of
+    inscription as an EDTF interval in dcterms:valid. Queries over the current
+    List (the core graph) are unaffected.
+
+    The removal year defaults to the year of the first snapshot in which the
+    site is missing; authority/removed.csv (id_no,year_removed,note) can
+    override it with the official decision year."""
+    g = new_graph()
+    snaps = sorted(CLEAN.glob("sites-*.json"))
+    last_seen: dict = {}
+    first_missing: dict = {}
+    for snap in snaps:
+        stamp = snap.stem.replace("sites-", "")
+        records = {r["id_no"]: r for r in json.loads(snap.read_text("utf-8"))}
+        for i, r in records.items():
+            last_seen[i] = r
+            first_missing.pop(i, None)
+        for i in last_seen:
+            if i not in records and i not in first_missing:
+                first_missing[i] = stamp[:4]
+    removed = {i for i in last_seen if i not in current_ids}
+    if not removed:
+        return g
+    override = {}
+    path = AUTH / "removed.csv"
+    if path.exists():
+        with path.open(encoding="utf-8") as fh:
+            override = {int(r["id_no"]): r for r in csv.DictReader(fh)}
+    auth = load_authorities()
+    for i in sorted(removed):
+        rec = last_seen[i]
+        add_site(g, rec, auth)
+        year = override.get(int(i), {}).get("year_removed") or first_missing[i]
+        start = (rec.get("date_inscribed") or "")[:4]
+        g.add((WHS_SITE[str(i)], DCTERMS.valid, Literal(f"{start}/{year}")))
     return g
 
 
@@ -228,7 +329,15 @@ def main(incremental: bool = False) -> None:
     g.serialize(OUT / "whs.ttl", format="turtle")
     g.serialize(OUT / "whs.nt", format="nt", encoding="utf-8")
 
+    current_ids = {int(str(s).rsplit("/", 1)[-1])
+                   for s in g.subjects(RDF.type, CRM["E18_Physical_Thing"])}
+    removed = build_removed(current_ids)
+    removed.serialize(OUT / "whs-removed.ttl", format="turtle")
+
     stats = graph_stats(g)
+    stats.append(f"removed from List:    "
+                 f"{len(set(removed.subjects(RDF.type, CRM['E18_Physical_Thing'])))}"
+                 f" (kept in out/whs-removed.ttl)")
     print("\n".join(stats))
     (OUT / "stats.txt").write_text("\n".join(stats), encoding="utf-8")
 
@@ -241,6 +350,7 @@ def main(incremental: bool = False) -> None:
     conforms, _, report = validate(
         g,
         shacl_graph=str(Path("whs-shapes.ttl")),
+        ont_graph=str(Path("../vocab/whs-terms.ttl")),
         inference="none",
         meta_shacl=False,
         advanced=True,

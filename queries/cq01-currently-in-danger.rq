@@ -1,0 +1,19 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX schema:  <http://schema.org/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX wd:      <http://www.wikidata.org/entity/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+# CQ1 (UC1): Which properties are currently on the List in Danger, and since when?
+SELECT ?site ?name ?since ?type WHERE {
+  ?site crm:P12i_was_present_at ?ev ; dcterms:title ?name .
+  FILTER (lang(?name) = "en")
+  ?ev dcterms:temporal ?iv .
+  OPTIONAL { ?ev dcterms:subject ?type }
+  FILTER (STRENDS(STR(?iv), "/.."))
+  BIND (STRBEFORE(STR(?iv), "/") AS ?since)
+} ORDER BY ?since

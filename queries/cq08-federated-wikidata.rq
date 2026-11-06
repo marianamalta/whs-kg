@@ -1,0 +1,19 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX schema:  <http://schema.org/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX wd:      <http://www.wikidata.org/entity/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+# CQ8 (UC3): Images and official websites from Wikidata (federated query).
+SELECT ?site ?name ?image ?website WHERE {
+  ?site schema:sameAs ?wd ; dcterms:title ?name .
+  FILTER (lang(?name) = "en")
+  SERVICE <https://query.wikidata.org/sparql> {
+    OPTIONAL { ?wd wdt:P18 ?image }
+    OPTIONAL { ?wd wdt:P856 ?website }
+  }
+} LIMIT 50

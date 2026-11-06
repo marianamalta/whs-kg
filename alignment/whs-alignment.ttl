@@ -1,0 +1,64 @@
+@prefix whs:     <https://w3id.org/whs/terms/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema:  <http://schema.org/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix edm:     <http://www.europeana.eu/schemas/edm/> .
+@prefix wdt:     <http://www.wikidata.org/prop/direct/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+# ---------------------------------------------------------------------------
+# WHS alignment axioms (MAP 2.0)
+#
+# Logical axioms that are SAFE under RDFS/OWL entailment, i.e. whose
+# consequences are true of every WHS description. They let a reasoner (or the
+# pre-computed "entailed" graph) expose WHS data through the vocabularies the
+# profile borrows from. Looser correspondences (close/related matches that
+# must NOT be used for inference) live only in whs-mappings.sssom.tsv.
+# Structural mappings that need new nodes (e.g. CRM time-spans, appellations)
+# cannot be written as axioms and are provided as the CONSTRUCT query
+# crm-view.rq.
+# ---------------------------------------------------------------------------
+
+<https://w3id.org/whs/alignment>
+    a owl:Ontology ;
+    rdfs:label "WHS alignment axioms"@en ;
+    owl:imports <https://w3id.org/whs/terms/> ;
+    owl:versionInfo "2.0.0" .
+
+# --- to DCMI Terms (primary target; repeated here for completeness) ---------
+whs:stateParty          rdfs:subPropertyOf dcterms:spatial .
+whs:region              rdfs:subPropertyOf dcterms:spatial .
+whs:justification       rdfs:subPropertyOf dcterms:description .
+whs:criterionJustification rdfs:subPropertyOf dcterms:relation .
+
+# --- to CIDOC CRM -----------------------------------------------------------
+# Free-text notes: CRM P3 has note (domain E1 CRM Entity).
+whs:justification       rdfs:subPropertyOf crm:P3_has_note .
+#   (dcterms:description itself is mapped to P3 by crm-view.rq rather than by
+#   an axiom, to avoid asserting new semantics about a third-party term.)
+
+# Location: a State Party territory and a WH region are places where the
+# property is located. CRM P53 has former or current location.
+whs:stateParty          rdfs:subPropertyOf crm:P53_has_former_or_current_location .
+
+# The justification of a criterion is a CRM information object about the site.
+whs:CriterionJustification rdfs:subClassOf crm:E73_Information_Object .
+
+# --- to schema.org ----------------------------------------------------------
+whs:justification       rdfs:subPropertyOf schema:description .
+whs:stateParty          rdfs:subPropertyOf schema:containedInPlace .
+whs:region              rdfs:subPropertyOf schema:containedInPlace .
+crm:E18_Physical_Thing  skos:closeMatch schema:Place .   # not used for inference
+
+# --- to Wikidata (direct properties) ----------------------------------------
+# P17 (country) expects Wikidata items as values; WHS uses TGN URIs, so this
+# is recorded as a close match only (see SSSOM), not as a sub-property axiom.
+whs:stateParty          skos:closeMatch wdt:P17 .
+
+# --- to EDM (used in MAP 1.0; retained for backward compatibility) ----------
+# edm:country in EDM takes a literal country name on aggregations, so the MAP
+# 1.0 use of edm:country with TGN URIs is withdrawn; the correspondence is
+# recorded as a related match only.
+whs:stateParty          skos:relatedMatch edm:country .

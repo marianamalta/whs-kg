@@ -1,0 +1,74 @@
+@prefix whs:     <https://w3id.org/whs/terms/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann:    <http://purl.org/vocab/vann/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------------------------------------------------------------------------
+# WHS element set (MAP 2.0)
+#
+# The WHS Metadata Application Profile takes DCMI Metadata Terms as its
+# primary target vocabulary. Local terms are minted ONLY where no DCMI term
+# carries the needed meaning, and every local property is declared as a
+# refinement (rdfs:subPropertyOf) of a DCMI term. A consumer that understands
+# only DCMI Terms therefore recovers a valid DCMI description by RDFS
+# entailment (or by loading the "entailed" graph published with the data).
+# Mappings to other vocabularies (CIDOC CRM, EDM, schema.org, Wikidata) are
+# kept out of this file, in ../alignment/.
+# ---------------------------------------------------------------------------
+
+<https://w3id.org/whs/terms/>
+    a owl:Ontology ;
+    dcterms:title "WHS element set: local refinements used by the UNESCO World Heritage Metadata Application Profile"@en ;
+    dcterms:description "Minimal set of refinements of DCMI Metadata Terms needed to describe UNESCO World Heritage properties in the WHS knowledge graph."@en ;
+    dcterms:creator "Mariana Curado Malta", "Alexandre H. S. Santos", "Pedro T. L. B. Plácido" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionInfo "2.0.0" ;
+    owl:versionIRI <https://w3id.org/whs/terms/2.0.0> ;
+    vann:preferredNamespacePrefix "whs" ;
+    vann:preferredNamespaceUri "https://w3id.org/whs/terms/" ;
+    rdfs:seeAlso <https://w3id.org/whs/profile> .
+
+# --- properties --------------------------------------------------------------
+
+whs:stateParty
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "State Party"@en, "État partie"@fr ;
+    rdfs:comment "A State Party to the World Heritage Convention on whose territory the World Heritage property is located. Values are Getty TGN nation URIs. Repeated for transboundary properties."@en ;
+    rdfs:subPropertyOf dcterms:spatial ;
+    rdfs:isDefinedBy <https://w3id.org/whs/terms/> ;
+    skos:scopeNote "Refines dcterms:spatial: the State Party is a legal role under the 1972 Convention, not just a spatial coverage; a property may be transboundary."@en .
+
+whs:region
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "World Heritage region"@en, "Région du patrimoine mondial"@fr ;
+    rdfs:comment "The UNESCO World Heritage regional grouping of the property, as a concept of the WHS region scheme <https://w3id.org/whs/region/>, which is mapped to the UNESCO Thesaurus."@en ;
+    rdfs:subPropertyOf dcterms:spatial ;
+    rdfs:isDefinedBy <https://w3id.org/whs/terms/> .
+
+whs:justification
+    a rdf:Property, owl:DatatypeProperty ;
+    rdfs:label "justification for inscription"@en, "justification de l'inscription"@fr ;
+    rdfs:comment "Statement of Outstanding Universal Value justifying the inscription of the property on the World Heritage List, as a language-tagged literal. Used on a site (full text) and on a whs:CriterionJustification (text for one criterion)."@en ;
+    rdfs:subPropertyOf dcterms:description ;
+    rdfs:isDefinedBy <https://w3id.org/whs/terms/> ;
+    skos:scopeNote "Distinct from the short description (dcterms:description). Not dcterms:provenance: the justification states why the property is of Outstanding Universal Value, not its custodial history."@en .
+
+whs:criterionJustification
+    a rdf:Property, owl:ObjectProperty ;
+    rdfs:label "criterion justification"@en ;
+    rdfs:comment "Links a World Heritage property to the structured justification of one inscription criterion it meets."@en ;
+    rdfs:subPropertyOf dcterms:relation ;
+    rdfs:range whs:CriterionJustification ;
+    rdfs:isDefinedBy <https://w3id.org/whs/terms/> .
+
+# --- class -------------------------------------------------------------------
+
+whs:CriterionJustification
+    a rdfs:Class, owl:Class ;
+    rdfs:label "Criterion justification"@en ;
+    rdfs:comment "The justification of one inscription criterion (i)-(x) for one World Heritage property. Carries the criterion as dcterms:subject (Wikidata criterion item) and the text as whs:justification. Emitted only when the official justification is segmented by criterion markers."@en ;
+    rdfs:isDefinedBy <https://w3id.org/whs/terms/> .

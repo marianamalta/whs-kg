@@ -1,28 +1,26 @@
-# Data licence
+# Licences
 
-The **software** in this repository (the Python pipeline scripts, SHACL shapes,
-and configuration) is licensed under the MIT License — see [`LICENSE`](LICENSE).
+| Part | Licence |
+|---|---|
+| Software: pipeline scripts, SHACL shapes, endpoint configuration, queries | MIT — see [`LICENSE`](../LICENSE) |
+| Our own vocabulary work: WHS element set (`vocab/whs-terms.ttl`), WHS region scheme (`vocab/whs-regions.ttl`), alignment layer (`alignment/`), profile documentation (`docs/PROFILE.md`) | Creative Commons Attribution 4.0 (CC BY 4.0) |
+| **Data** derived from the UNESCO export: the generated graph (`out/`, `docs/whs.*`), cleaned snapshots (`data/clean/`) | **Pending.** See below. |
 
-The **data** produced and curated by this pipeline — the generated knowledge
-graph (`out/whs.ttl`, `out/whs.nt`), the authority files (`authority/*.csv`),
-and the cleaned snapshots (`data/clean/*`) — is licensed under the
-**Creative Commons Attribution 4.0 International (CC BY 4.0)** licence.
+## UNESCO source data
 
-You are free to share and adapt this data for any purpose, including
-commercially, provided you give appropriate credit (see *How to cite* below),
-provide a link to the licence, and indicate if changes were made.
+The records are derived from the UNESCO World Heritage Centre syndication export
+(https://whc.unesco.org/en/syndication). The Centre's Terms and Conditions of
+Use for syndicated content require prior written authorization for any
+republication. Authorization to republish the derived data under an open
+licence was requested from the World Heritage Centre on DATE-TO-FILL;
+this section will state the licence once the Centre has answered.
 
-- Human-readable summary: https://creativecommons.org/licenses/by/4.0/
-- Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+Copyright © 1992 - 2026 UNESCO/World Heritage Centre. All rights reserved.
+Source: https://whc.unesco.org — each site links to its official page
+(`dcterms:source`).
 
-## Source attribution
-
-The underlying records are derived from the official UNESCO World Heritage
-Centre syndication export (https://whc.unesco.org/en/syndication). UNESCO is the
-authoritative source of the World Heritage List; this repository provides a
-cleaned, reconciled, and RDF-encoded derivative and is not endorsed by UNESCO.
+This repository is an independent derivative and is not endorsed by UNESCO.
 
 ## How to cite
 
-Please cite both the software and the accompanying paper as described in
-[`CITATION.cff`](CITATION.cff).
+See [`CITATION.cff`](CITATION.cff).

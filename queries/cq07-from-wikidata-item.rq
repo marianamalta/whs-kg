@@ -1,0 +1,16 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX schema:  <http://schema.org/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX wd:      <http://www.wikidata.org/entity/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+# CQ7 (UC3): Given a Wikidata item, the official UNESCO description and inscription date.
+SELECT ?site ?description ?inscribed ?page WHERE {
+  VALUES ?wd { wd:Q3848157 }   # Historic Centre of Oporto (example)
+  ?site schema:sameAs ?wd ; dcterms:dateAccepted ?inscribed ; dcterms:source ?page .
+  OPTIONAL { ?site dcterms:description ?description FILTER (lang(?description) = "en") }
+}

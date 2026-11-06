@@ -1,0 +1,120 @@
+# ---------------------------------------------------------------------------
+# CIDOC CRM view of the WHS knowledge graph (MAP 2.0)
+#
+# A SPARQL 1.1 CONSTRUCT that rewrites the profile-level description into
+# CRM-conformant patterns: E41 Appellations and E42 Identifiers (P1), notes
+# (P3), an E53 Place defined by a WKT point (P53, P168), an E54 Dimension (P43),
+# E55 Types for criteria and danger types (P2), the inscription as an E7
+# Activity, and E52 Time-Spans (P4, P82a, P82b) for EDTF dates and intervals, with one
+# sub-event (P9) per danger-listing period.
+#
+# Run it over the core graph (e.g. graph <https://w3id.org/whs/graph/core>)
+# and load the result as <https://w3id.org/whs/graph/crm>. Derived nodes get
+# deterministic URIs under https://w3id.org/whs/crm/ so the view is stable
+# across releases. CRM version: 7.1.x (namespace http://www.cidoc-crm.org/cidoc-crm/).
+# ---------------------------------------------------------------------------
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX gsp:     <http://www.opengis.net/ont/geosparql#>
+PREFIX dbo:     <http://dbpedia.org/ontology/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+
+CONSTRUCT {
+  ?site a crm:E18_Physical_Thing ;
+        crm:P1_is_identified_by ?idNode, ?nameNode ;
+        crm:P3_has_note ?desc, ?just ;
+        crm:P2_has_type ?criterion ;
+        crm:P53_has_former_or_current_location ?place, ?state ;
+        crm:P43_has_dimension ?dim ;
+        crm:P12i_was_present_at ?inscription, ?ev ;
+        crm:P70i_is_documented_in ?page .
+
+  ?idNode a crm:E42_Identifier ; crm:P190_has_symbolic_content ?idStr .
+  ?nameNode a crm:E41_Appellation ; crm:P190_has_symbolic_content ?name .
+  ?criterion a crm:E55_Type .
+  ?page a crm:E31_Document .
+
+  ?place a crm:E53_Place ; crm:P168_place_is_defined_by ?wkt .
+  ?state a crm:E53_Place .
+
+  ?dim a crm:E54_Dimension ; crm:P90_has_value ?area ;
+       crm:P91_has_unit <http://qudt.org/vocab/unit/M2> .
+  <http://qudt.org/vocab/unit/M2> a crm:E58_Measurement_Unit ;
+       rdfs:label "square metre"@en .
+
+  ?inscription a crm:E7_Activity ;
+       rdfs:label "Inscription on the World Heritage List"@en ;
+       crm:P4_has_time-span ?insTs .
+  ?insTs a crm:E52_Time-Span ;
+       crm:P82a_begin_of_the_begin ?insBegin ;
+       crm:P82b_end_of_the_end ?insEnd .
+
+  # CRM allows one time-span per event, so each listing period becomes a
+  # sub-event (P9 consists of) of the danger-listing event.
+  ?ev a crm:E5_Event ; crm:P2_has_type ?dtype ; crm:P9_consists_of ?period .
+  ?period a crm:E5_Event ; crm:P2_has_type ?dtype ; crm:P4_has_time-span ?ts .
+  ?dtype a crm:E55_Type .
+  ?ts a crm:E52_Time-Span ;
+      crm:P82a_begin_of_the_begin ?tsBegin ;
+      crm:P82b_end_of_the_end ?tsEnd .
+}
+WHERE {
+  # NB: UNION branches are evaluated independently (bottom-up), so each branch
+  # that needs the site number recomputes it from the site URI (?sid).
+  ?site a crm:E18_Physical_Thing ; dcterms:identifier ?id .
+  BIND (STR(?id) AS ?idStr)
+  BIND (IRI(CONCAT("https://w3id.org/whs/crm/identifier/", ?idStr)) AS ?idNode)
+
+  { ?site dcterms:source ?page }
+  UNION
+  { ?site dcterms:title ?name .
+    BIND (STRAFTER(STR(?site), "/whs/site/") AS ?sid)
+    BIND (IRI(CONCAT("https://w3id.org/whs/crm/appellation/", ?sid, "-", LANG(?name))) AS ?nameNode) }
+  UNION
+  { ?site dcterms:description ?desc }
+  UNION
+  { ?site whs:justification ?just }
+  UNION
+  { ?site wdt:P2614 ?criterion }
+  UNION
+  { ?site whs:stateParty ?state }
+  UNION
+  { ?site geo:lat ?lat ; geo:long ?long .
+    BIND (STRAFTER(STR(?site), "/whs/site/") AS ?sid)
+    BIND (IRI(CONCAT("https://w3id.org/whs/crm/place/", ?sid)) AS ?place)
+    BIND (STRDT(CONCAT("POINT(", STR(?long), " ", STR(?lat), ")"), gsp:wktLiteral) AS ?wkt) }
+  UNION
+  { ?site dbo:areaTotal ?area .
+    BIND (STRAFTER(STR(?site), "/whs/site/") AS ?sid)
+    BIND (IRI(CONCAT("https://w3id.org/whs/crm/dimension/", ?sid, "-area")) AS ?dim) }
+  UNION
+  { ?site dcterms:dateAccepted ?ins .
+    BIND (STRAFTER(STR(?site), "/whs/site/") AS ?sid)
+    BIND (IRI(CONCAT("https://w3id.org/whs/crm/inscription/", ?sid)) AS ?inscription)
+    BIND (IRI(CONCAT("https://w3id.org/whs/crm/timespan/inscription-", ?sid)) AS ?insTs)
+    # EDTF year (YYYY) or date (YYYY-MM-DD) -> xsd:dateTime bounds
+    BIND (STRDT(CONCAT(SUBSTR(STR(?ins), 1, 4),
+                       IF(STRLEN(STR(?ins)) >= 10, SUBSTR(STR(?ins), 5, 6), "-01-01"),
+                       "T00:00:00"), xsd:dateTime) AS ?insBegin)
+    BIND (STRDT(CONCAT(SUBSTR(STR(?ins), 1, 4),
+                       IF(STRLEN(STR(?ins)) >= 10, SUBSTR(STR(?ins), 5, 6), "-12-31"),
+                       "T23:59:59"), xsd:dateTime) AS ?insEnd) }
+  UNION
+  { ?site crm:P12i_was_present_at ?ev .
+    OPTIONAL { ?ev dcterms:subject ?dtype }
+    ?ev dcterms:temporal ?iv .
+    BIND (STRBEFORE(STR(?iv), "/") AS ?a)
+    BIND (STRAFTER(STR(?iv), "/") AS ?b)
+    BIND (IRI(CONCAT(REPLACE(STR(?ev), "/whs/danger/", "/whs/crm/period/"),
+                     "-", ?a)) AS ?period)
+    BIND (IRI(CONCAT(REPLACE(STR(?ev), "/whs/danger/", "/whs/crm/timespan/danger-"),
+                     "-", ?a)) AS ?ts)
+    BIND (STRDT(CONCAT(SUBSTR(?a, 1, 4), "-01-01T00:00:00"), xsd:dateTime) AS ?tsBegin)
+    # open interval (still on the List): no P82b is emitted
+    BIND (IF(?b = "..", ?unbound,
+             STRDT(CONCAT(SUBSTR(?b, 1, 4), "-12-31T23:59:59"), xsd:dateTime)) AS ?tsEnd) }
+}

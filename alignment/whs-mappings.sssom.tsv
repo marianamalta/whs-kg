@@ -1,0 +1,48 @@
+# curie_map:
+#   whs: "https://w3id.org/whs/terms/"
+#   dcterms: "http://purl.org/dc/terms/"
+#   schema: "http://schema.org/"
+#   crm: "http://www.cidoc-crm.org/cidoc-crm/"
+#   edm: "http://www.europeana.eu/schemas/edm/"
+#   geo: "http://www.w3.org/2003/01/geo/wgs84_pos#"
+#   wdt: "http://www.wikidata.org/prop/direct/"
+#   dbo: "http://dbpedia.org/ontology/"
+#   skos: "http://www.w3.org/2004/02/skos/core#"
+#   rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+#   semapv: "https://w3id.org/semapv/vocab/"
+#   orcid: "https://orcid.org/"
+# mapping_set_id: "https://w3id.org/whs/alignment/whs-mappings.sssom.tsv"
+# mapping_set_version: "2.0.0"
+# mapping_set_description: "Term-level alignment of the WHS Metadata Application Profile (MAP 2.0) to DCMI Terms, CIDOC CRM, schema.org, EDM, Wikidata and DBpedia. Records, for every attribute of the domain model, the selected term and the correspondences to candidate terms in other vocabularies, with the reason for the selection."
+# license: "https://creativecommons.org/licenses/by/4.0/"
+# creator_id:
+#   - "orcid:0000-0002-3512-931X"
+subject_id	subject_label	predicate_id	object_id	object_label	mapping_justification	comment
+dcterms:identifier	Site id (official id_no)	skos:closeMatch	crm:P1_is_identified_by	is identified by (E42 Identifier)	semapv:ManualMappingCuration	Selected: dcterms:identifier (primary vocabulary). CRM reifies the identifier as an E42 node; produced by crm-view.rq.
+dcterms:identifier	Site id (official id_no)	skos:exactMatch	schema:identifier	identifier	semapv:ManualMappingCuration	Candidate not selected (parsimony: primary vocabulary has the term).
+dcterms:source	Official UNESCO page	skos:closeMatch	crm:P70i_is_documented_in	is documented in	semapv:ManualMappingCuration	Selected: dcterms:source (MAP 2.0). Actionable provenance link to https://whc.unesco.org/en/list/{id}.
+schema:version	Entry version	skos:relatedMatch	dcterms:hasVersion	has version	semapv:ManualMappingCuration	Selected: schema:version. dcterms:hasVersion relates two resources, whereas the value here is an ordinal integer; DCMI has no suitable term.
+dcterms:title	Name	skos:closeMatch	crm:P1_is_identified_by	is identified by (E41 Appellation)	semapv:ManualMappingCuration	Selected: dcterms:title. Language-tagged literal suffices; CRM appellation node produced by crm-view.rq.
+dcterms:title	Name	skos:exactMatch	schema:name	name	semapv:ManualMappingCuration	Candidate not selected (primary vocabulary has the term).
+dcterms:description	Short description	skos:broadMatch	crm:P3_has_note	has note	semapv:ManualMappingCuration	Selected: dcterms:description.
+whs:justification	Justification (OUV)	rdfs:subPropertyOf	dcterms:description	description	semapv:ManualMappingCuration	New in MAP 2.0 (replaces schema:description). Refinement of the primary vocabulary.
+whs:justification	Justification (OUV)	skos:broadMatch	crm:P3_has_note	has note	semapv:ManualMappingCuration	Also asserted as rdfs:subPropertyOf in whs-alignment.ttl.
+whs:justification	Justification (OUV)	skos:relatedMatch	dcterms:provenance	provenance	semapv:ManualMappingCuration	Rejected: dcterms:provenance is a statement of changes in ownership and custody; the justification states Outstanding Universal Value.
+whs:CriterionJustification	Criterion justification	skos:broadMatch	crm:E73_Information_Object	Information Object	semapv:ManualMappingCuration	New in MAP 2.0. Also asserted as rdfs:subClassOf in whs-alignment.ttl.
+dcterms:dateAccepted	Date inscribed	skos:closeMatch	crm:P4_has_time-span	has time-span (of the inscription activity)	semapv:ManualMappingCuration	Selected: dcterms:dateAccepted. In CRM the inscription is an E7 Activity with an E52 Time-Span; produced by crm-view.rq.
+dcterms:date	Secondary date	skos:relatedMatch	crm:P4_has_time-span	has time-span	semapv:ManualMappingCuration	Selected: dcterms:date (generic by nature).
+geo:lat	Latitude	skos:exactMatch	schema:latitude	latitude	semapv:ManualMappingCuration	Selected: geo:lat (WGS84 datum explicit in the term semantics). DCMI has no term.
+geo:long	Longitude	skos:exactMatch	schema:longitude	longitude	semapv:ManualMappingCuration	Selected: geo:long. DCMI has no term.
+geo:lat	Latitude	skos:relatedMatch	crm:P168_place_is_defined_by	place is defined by	semapv:ManualMappingCuration	crm-view.rq builds an E53 Place defined by a WKT point.
+dbo:areaTotal	Area (m2)	skos:closeMatch	crm:P43_has_dimension	has dimension (E54 Dimension)	semapv:ManualMappingCuration	Selected: dbo:areaTotal, square metres, xsd:decimal (MAP 2.0; MAP 1.0 used hectares with xsd:double). DCMI has no term. CRM E54 node produced by crm-view.rq.
+wdt:P2614	Inscription criterion	skos:closeMatch	crm:P2_has_type	has type	semapv:ManualMappingCuration	Selected: wdt:P2614 with the ten Wikidata criterion items (stable, multilingual). DCMI has no specific term; dcterms:subject would lose the meaning.
+whs:stateParty	State Party	rdfs:subPropertyOf	dcterms:spatial	spatial coverage	semapv:ManualMappingCuration	New in MAP 2.0 (replaces edm:country). Refinement of the primary vocabulary.
+whs:stateParty	State Party	skos:closeMatch	wdt:P17	country	semapv:ManualMappingCuration	Not a sub-property: P17 values are Wikidata items, WHS values are TGN URIs.
+whs:stateParty	State Party	skos:relatedMatch	edm:country	country	semapv:ManualMappingCuration	Used in MAP 1.0; withdrawn because edm:country takes a literal country name on EDM aggregations.
+whs:stateParty	State Party	skos:broadMatch	crm:P53_has_former_or_current_location	has former or current location	semapv:ManualMappingCuration	Also asserted as rdfs:subPropertyOf in whs-alignment.ttl.
+whs:region	WH region	rdfs:subPropertyOf	dcterms:spatial	spatial coverage	semapv:ManualMappingCuration	New in MAP 2.0 (replaces direct use of dcterms:spatial). Refinement of the primary vocabulary.
+whs:region	WH region	skos:broadMatch	schema:containedInPlace	contained in place	semapv:ManualMappingCuration	Also asserted as rdfs:subPropertyOf in whs-alignment.ttl.
+schema:sameAs	Same as (Wikidata)	skos:relatedMatch	owl:sameAs	same as	semapv:ManualMappingCuration	Selected: schema:sameAs (identity reference without OWL identity entailment, which would merge WHS and Wikidata statements).
+crm:P12i_was_present_at	Danger listing	skos:exactMatch	crm:P12i_was_present_at	was present at	semapv:ManualMappingCuration	CRM-native: E18 (a subclass of E77) was present at an E5 Event.
+dcterms:subject	Danger type	skos:closeMatch	crm:P2_has_type	has type	semapv:ManualMappingCuration	Selected: dcterms:subject with the danger-type VES (UNESCO Thesaurus excerpt).
+dcterms:temporal	Danger period	skos:closeMatch	crm:P4_has_time-span	has time-span (E52, P82a/P82b)	semapv:ManualMappingCuration	Selected: dcterms:temporal with EDTF intervals. CRM time-spans produced by crm-view.rq.

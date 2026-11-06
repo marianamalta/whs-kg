@@ -1,0 +1,31 @@
+# Proposed .htaccess for https://github.com/perma-id/w3id.org/tree/master/whs
+# Replace ENDPOINT and DOCS with the real locations before opening the PR.
+#   ENDPOINT = https://<institutional-host>/whs/sparql
+#   DOCS     = https://marianamalta.github.io/whs-kg
+Options +FollowSymLinks
+RewriteEngine on
+
+# --- element set and profile documentation -------------------------------
+RewriteCond %{HTTP_ACCEPT} text/turtle [OR]
+RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [OR]
+RewriteCond %{HTTP_ACCEPT} application/ld\+json
+RewriteRule ^terms/?.*$ DOCS/vocab/whs-terms.ttl [R=303,L]
+RewriteRule ^terms/?.*$ DOCS/profile.html [R=303,L]
+RewriteRule ^profile/?$ DOCS/profile.html [R=303,L]
+RewriteRule ^shapes/?.*$ DOCS/whs-shapes.ttl [R=303,L]
+# WH region scheme (SKOS): one small file serves all five concepts
+RewriteRule ^region/?.*$ DOCS/vocab/whs-regions.ttl [R=303,L]
+
+# --- entities: RDF via SPARQL DESCRIBE, HTML via the docs page -----------
+RewriteCond %{HTTP_ACCEPT} text/turtle
+RewriteRule ^(site|danger|justification)/(.+)$ ENDPOINT?query=DESCRIBE\%20\%3Chttps\%3A\%2F\%2Fw3id.org\%2Fwhs\%2F$1\%2F$2\%3E&format=text/turtle [R=303,L,NE]
+RewriteCond %{HTTP_ACCEPT} application/ld\+json
+RewriteRule ^(site|danger|justification)/(.+)$ ENDPOINT?query=DESCRIBE\%20\%3Chttps\%3A\%2F\%2Fw3id.org\%2Fwhs\%2F$1\%2F$2\%3E&format=application/ld\%2Bjson [R=303,L,NE]
+RewriteCond %{HTTP_ACCEPT} application/rdf\+xml
+RewriteRule ^(site|danger|justification)/(.+)$ ENDPOINT?query=DESCRIBE\%20\%3Chttps\%3A\%2F\%2Fw3id.org\%2Fwhs\%2F$1\%2F$2\%3E&format=application/rdf\%2Bxml [R=303,L,NE]
+# browsers: human-readable page of the official record
+RewriteRule ^site/([0-9]+)$ https://whc.unesco.org/en/list/$1 [R=303,L]
+RewriteRule ^(danger|justification)/([0-9]+)-.*$ https://whc.unesco.org/en/list/$2 [R=303,L]
+
+# --- default --------------------------------------------------------------
+RewriteRule ^$ DOCS/ [R=302,L]

@@ -1,0 +1,76 @@
+# Weekly check of the UNESCO World Heritage export. If its content changed,
+# rebuild and validate the graph and open a pull request for review.
+# Nothing is published until a maintainer merges the pull request.
+name: Check UNESCO export
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"      # Mondays 05:17 UTC
+  workflow_dispatch: {}       # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: Download export and compare content with last snapshot
+        id: check
+        run: python check_update.py
+
+      - name: Rebuild, validate, build views, changelog
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          python clean.py
+          python reconcile.py          # Wikidata / TGN links for new sites
+          python curate.py || true     # list of editorial gaps (danger types ...)
+          python build_graph.py        # writes the SHACL report; never fails the job
+          python build_views.py
+          python diff.py || true       # changelog + delta vs previous snapshot
+          cp out/whs.ttl out/whs.nt out/whs-all.trig ../docs/
+
+      - name: Write pull-request body
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          {
+            echo "Automatic update from the UNESCO World Heritage export."
+            echo
+            echo "## Statistics"; echo '```'; cat out/stats.txt; echo '```'
+            echo "## SHACL validation"; echo '```'; head -40 out/shacl-report.txt; echo '```'
+            echo "## Changes"; echo '```'; cat out/changelog-*.txt 2>/dev/null | head -200; echo '```'
+            echo "## Curation needed"; echo '```'; cat authority/curation_todo.txt 2>/dev/null | head -80; echo '```'
+            echo
+            echo "Check the curation list (new danger listings need a type in authority/danger_types.csv),"
+            echo "re-run if needed, then merge: merging publishes a new release."
+          } > ../pr-body.md
+
+      - name: Open pull request
+        if: steps.check.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: unesco-update
+          title: "UNESCO export changed: rebuilt graph for review"
+          body-path: pr-body.md
+          commit-message: "Rebuild graph from new UNESCO export"
+          add-paths: |
+            pipeline/data/raw
+            pipeline/data/clean
+            pipeline/authority
+            docs/whs.ttl
+            docs/whs.nt
+            docs/whs-all.trig

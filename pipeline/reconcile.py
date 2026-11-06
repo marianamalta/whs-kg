@@ -96,19 +96,20 @@ def seed_regions() -> None:
     if out.exists():
         print(f"  {out}: kept (hand-curated)")
         return
+    # v2: the five WH regions of the WHS SKOS scheme (../vocab/whs-regions.ttl)
+    base = "https://w3id.org/whs/region/"
     rows = [
-        ["Europe and North America", "http://vocabularies.unesco.org/thesaurus/mt7.2"],
-        ["Asia and the Pacific", "http://vocabularies.unesco.org/thesaurus/mt7.15"],
-        ["Africa", ""],            # TODO fill from the thesaurus browser
-        ["Arab States", ""],       # TODO
-        ["Latin America and the Caribbean", ""],  # TODO
+        ["Africa", base + "africa"],
+        ["Arab States", base + "arab-states"],
+        ["Asia and the Pacific", base + "asia-pacific"],
+        ["Europe and North America", base + "europe-north-america"],
+        ["Latin America and the Caribbean", base + "latin-america-caribbean"],
     ]
     with out.open("w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
-        w.writerow(["region_en", "unescot_uri"])
+        w.writerow(["region_en", "region_uri"])
         w.writerows(rows)
-    REVIEW.append("regions: fill the three empty mt7.x URIs in regions.csv")
-    print(f"  {out}: seeded - fill the empty rows")
+    print(f"  {out}: seeded")
 
 
 def seed_danger_types(sites: list[dict]) -> None:

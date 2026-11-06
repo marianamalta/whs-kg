@@ -2,7 +2,7 @@
 
 Reproducible pipeline that turns the official UNESCO World Heritage syndication
 export into the five-star RDF knowledge graph described in the paper
-(*Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites*).
+(*WHS-KG: A FAIR Linked Data Resource for the UNESCO World Heritage List, Built with a Data-Driven Metadata Application Profile*).
 
 ## Design
 
@@ -11,6 +11,7 @@ for what is editorial; the pipeline **flags gaps instead of guessing**.
 
 | Step | Script | Output |
 |------|--------|--------|
+| 0. Check (automatic, weekly) | `check_update.py` | new `data/raw/` snapshot only if the export's content changed |
 | 1. Extract | `extract.py` | `data/raw/whc-sites-<date>.csv` (dated snapshot) |
 | 2. Clean (paper 4.1) | `clean.py` | `data/clean/sites.json` |
 | 3. Reconcile | `reconcile.py` | `authority/*.csv` + `authority/review_needed.txt` |
@@ -19,6 +20,8 @@ for what is editorial; the pipeline **flags gaps instead of guessing**.
 | 4 · incremental (optional) | `build_graph.py --incremental` | same outputs, but patches the existing graph — only added/changed sites are rebuilt |
 | 4b. Ablation (optional) | `ablate_cleaning.py` | prints SHACL violations with cleaning on vs. off (paper Table 6) |
 | 5. Diff (optional) | `diff.py` | `out/changelog-<date>.txt`, `out/delta-<date>.ru` (SPARQL UPDATE patch) |
+| 7. Competency questions | `run_queries.py` | `out/cq-results.txt`, `out/cq11-criteria-differences.csv` |
+| 6. Views | `build_views.py` | `out/whs-entailed.nt` (RDFS entailments), `out/whs-crm.nt` (CIDOC CRM view), `out/whs-all.trig` (named graphs for the SPARQL endpoint) |
 
 `curate.py` is a helper for the editorial work, not a build step: it reads the
 cleaned data plus the authority files and lists everything that still blocks a
@@ -35,6 +38,26 @@ cleaning operations disabled — but reconciliation and the MAP mapping held fix
 — and validates both that and the cleaned `out/whs.ttl`, printing a before/after
 count of SHACL violations broken down by constraint. It reuses `build_graph.py`,
 so run it from this folder after `build_graph.py` has produced `out/whs.ttl`.
+
+## Automatic updates
+
+`.github/workflows/check-unesco-update.yml` runs `check_update.py` every
+Monday. If the content of the UNESCO export changed, it runs the whole
+pipeline and opens a pull request (`unesco-update`) with the rebuilt dumps,
+the SHACL report, the changelog and the curation list. Review it, complete
+the curation if needed (e.g. `authority/danger_types.csv`), and merge:
+`.github/workflows/release.yml` then publishes a release (Zenodo archives it
+with a new version DOI) and the endpoint VM loads it (`endpoint/vm-update.sh`).
+
+The workflow needs `data/raw/`, `data/clean/` and `authority/` to be
+committed to the repository.
+
+Properties that disappear from the export (removed from the List) are never
+deleted: `build_graph.py` keeps their last description in
+`out/whs-removed.ttl` (named graph `.../graph/removed`) with
+`dcterms:valid "<inscribed>/<removed>"`, so their URIs keep resolving.
+Optional `authority/removed.csv` (`id_no,year_removed,note`) sets the official
+removal year.
 
 ## Authority files (in `authority/`)
 
@@ -71,6 +94,7 @@ so run it from this folder after `build_graph.py` has produced `out/whs.ttl`.
     python build_graph.py --incremental  # patch existing out/whs.ttl instead of full rebuild
     python ablate_cleaning.py  # optional: SHACL violations, cleaning on vs. off (Table 6)
     python diff.py          # optional: changelog + SPARQL UPDATE delta vs previous run
+    python build_views.py   # entailed + CIDOC CRM views, TriG for the endpoint
 
 `diff.py` compares the two most recent cleaned snapshots. For each site it
 reports whether it was **added** (`+`, a new site), **removed** (`-`), or
@@ -88,7 +112,9 @@ and SHACL validation run on the resulting graph either way.
 
 `build_graph.py` prints the statistics block used in the paper's Results
 section (triple count, site/danger-event counts, TGN/Wikidata link counts) and
-runs pySHACL against `whs-shapes.ttl`.
+runs pySHACL against `whs-shapes.ttl` (MAP 2.0 shapes, with the element set
+`../vocab/whs-terms.ttl` as ontology graph). See `../docs/PROFILE.md` for the
+profile documentation and `../CHANGES.md` for the changes from MAP 1.0.
 
 ## Notes
 
@@ -105,11 +131,13 @@ runs pySHACL against `whs-shapes.ttl`.
 ## Licence
 
 - **Code** (the pipeline scripts and SHACL shapes): MIT — see [`LICENSE`](LICENSE).
-- **Data** (the generated graph, authority files, and cleaned snapshots):
-  Creative Commons Attribution 4.0 (CC BY 4.0) — see [`DATA_LICENSE.md`](DATA_LICENSE.md).
+- **Vocabulary, region scheme, alignment, documentation:** CC BY 4.0.
+- **Data** derived from the UNESCO export: licence pending UNESCO/WHC
+  authorization — see [`DATA_LICENSE.md`](DATA_LICENSE.md).
 
+Copyright © 1992 - 2026 UNESCO/World Heritage Centre. All rights reserved.
 The records are derived from the official UNESCO World Heritage Centre
-syndication export and are not endorsed by UNESCO.
+syndication export (https://whc.unesco.org) and are not endorsed by UNESCO.
 
 ## How to cite
 

@@ -1,0 +1,20 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX schema:  <http://schema.org/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX wd:      <http://www.wikidata.org/entity/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+# CQ6 (UC2): Cultural / natural / mixed, derived from the criteria (design principle P3).
+SELECT ?category (COUNT(?site) AS ?n) WHERE {
+  { SELECT ?site
+      (MAX(IF(?c IN (wd:Q23038972, wd:Q23038976, wd:Q23038977,
+                     wd:Q23038978, wd:Q23038979, wd:Q23038980), 1, 0)) AS ?cu)
+      (MAX(IF(?c IN (wd:Q23038981, wd:Q23038983, wd:Q23038985,
+                     wd:Q23038986), 1, 0)) AS ?na)
+    WHERE { ?site wdt:P2614 ?c } GROUP BY ?site }
+  BIND (IF(?cu = 1 && ?na = 1, "Mixed", IF(?cu = 1, "Cultural", "Natural")) AS ?category)
+} GROUP BY ?category

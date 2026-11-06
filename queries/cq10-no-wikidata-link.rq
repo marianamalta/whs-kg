@@ -1,0 +1,16 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX schema:  <http://schema.org/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX wd:      <http://www.wikidata.org/entity/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+# CQ10 (UC4): Official properties with no Wikidata item linked through P757.
+SELECT ?site ?id ?name WHERE {
+  ?site a crm:E18_Physical_Thing ; dcterms:identifier ?id ; dcterms:title ?name .
+  FILTER (lang(?name) = "en")
+  FILTER NOT EXISTS { ?site schema:sameAs ?wd }
+} ORDER BY ?id

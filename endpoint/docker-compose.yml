@@ -1,0 +1,19 @@
+services:
+  fuseki:
+    image: stain/jena-fuseki:5.1.0      # pin a version; check Docker Hub for the latest
+    container_name: whs-fuseki
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    environment:
+      - ADMIN_PASSWORD=change-me        # admin UI password (keep the port firewalled)
+      - JVM_ARGS=-Xmx2g
+    volumes:
+      - ./config.ttl:/fuseki/configuration/whs.ttl:ro
+      - ./data:/staging:ro
+      - ./load.sh:/load.sh:ro
+      - fuseki-db:/fuseki/databases
+    entrypoint: ["/bin/sh", "/load.sh"]
+
+volumes:
+  fuseki-db:

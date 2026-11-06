@@ -1,0 +1,24 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX whs:     <https://w3id.org/whs/terms/>
+PREFIX crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+PREFIX schema:  <http://schema.org/>
+PREFIX wdt:     <http://www.wikidata.org/prop/direct/>
+PREFIX wd:      <http://www.wikidata.org/entity/>
+PREFIX geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:    <http://www.w3.org/2004/02/skos/core#>
+
+# CQ11 (UC4): Properties whose inscription criteria (P2614) in Wikidata differ
+# from the official record (federated query; run against the WHS endpoint).
+SELECT ?site ?wd ?criterion ?where WHERE {
+  ?site schema:sameAs ?wd .
+  {
+    ?site wdt:P2614 ?criterion .
+    FILTER NOT EXISTS { SERVICE <https://query.wikidata.org/sparql> { ?wd wdt:P2614 ?criterion } }
+    BIND ("official, missing in Wikidata" AS ?where)
+  } UNION {
+    SERVICE <https://query.wikidata.org/sparql> { ?wd wdt:P2614 ?criterion }
+    FILTER NOT EXISTS { ?site wdt:P2614 ?criterion }
+    BIND ("in Wikidata, not official" AS ?where)
+  }
+}

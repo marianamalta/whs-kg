@@ -34,7 +34,7 @@ keywords:
   - "FAIR"
 preferred-citation:
   type: article
-  title: "Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites"
+  title: "WHS-KG: A FAIR Linked Data Resource for the UNESCO World Heritage List, Built with a Data-Driven Metadata Application Profile"
   authors:
     - given-names: "Alexandre H. S."
       family-names: "Santos"

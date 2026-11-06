@@ -87,7 +87,7 @@ def main() -> None:
     unmatched: dict[str, int] = {}
     for s in sites:
         reg = s.get("region_en", "")
-        if not regions.get(reg, {}).get("unescot_uri"):
+        if not regions.get(reg, {}).get("region_uri"):
             unmatched[reg] = unmatched.get(reg, 0) + 1
     lines.append(f"== 3) REGION STRINGS NOT IN regions.csv: {len(unmatched)} ==")
     lines.append("   add a row per string (transboundary double-regions may "

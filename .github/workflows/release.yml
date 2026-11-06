@@ -1,0 +1,34 @@
+# When an updated graph reaches main (i.e. a reviewed update PR is merged),
+# publish a GitHub release with the dumps attached. The Zenodo-GitHub
+# integration archives each release with a new version DOI, and the endpoint
+# VM picks up the newest release (endpoint/vm-update.sh).
+name: Release data
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/whs-all.trig"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version = MAJOR.MINOR from CITATION.cff, PATCH = date
+        id: v
+        run: |
+          base=$(grep '^version:' CITATION.cff | sed -E 's/version: "?([0-9]+\.[0-9]+).*/\1/')
+          echo "tag=v${base}.$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: WHS-KG ${{ steps.v.outputs.tag }}
+          body: "Data release generated from the UNESCO World Heritage export. See CHANGES.md and the changelog in the update pull request."
+          files: |
+            docs/whs.ttl
+            docs/whs.nt
+            docs/whs-all.trig

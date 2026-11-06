@@ -1,6 +1,6 @@
 {
   "title": "UNESCO World Heritage Knowledge Graph and Pipeline",
-  "description": "A five-star, FAIR-oriented RDF knowledge graph of the UNESCO World Heritage sites, derived from the official World Heritage Centre syndication export, together with the reproducible pipeline that builds it: extraction, cleaning, reconciliation to Wikidata, the Getty Thesaurus of Geographic Names and the UNESCO Thesaurus, MAP-driven RDF generation, and SHACL validation. Accompanies the paper 'Building an Interoperable Knowledge Graph of the UNESCO World Heritage Sites'.",
+  "description": "A five-star, FAIR-oriented RDF knowledge graph of the UNESCO World Heritage sites, derived from the official World Heritage Centre syndication export, together with the reproducible pipeline that builds it: extraction, cleaning, reconciliation to Wikidata, the Getty Thesaurus of Geographic Names and the UNESCO Thesaurus, MAP-driven RDF generation, and SHACL validation. Accompanies the paper 'WHS-KG: A FAIR Linked Data Resource for the UNESCO World Heritage List, Built with a Data-Driven Metadata Application Profile'.",
   "upload_type": "dataset",
   "access_right": "open",
   "license": "cc-by-4.0",
